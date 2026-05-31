@@ -4,1038 +4,1192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบสร้างใบเสนอราคา ใบแจ้งหนี้ และบิลชำระเงิน</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts for Thai Language -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body {
-            font-family: 'Sarabun', sans-serif;
-            background-color: #f0f2f5;
-        }
-        
-        /* A4 Page Styling for Screen Preview */
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; }
         .a4-page {
-            width: 210mm;
-            height: 297mm;
-            min-height: 297mm;
-            max-height: 297mm;
-            padding: 15mm 20mm 20mm 20mm;
-            margin: 0 auto 20px auto;
-            background: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            border-radius: 4px;
-            box-sizing: border-box;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            page-break-after: always;
-            page-break-inside: avoid;
+            width: 210mm; height: 297mm; min-height: 297mm; max-height: 297mm;
+            padding: 15mm 20mm 20mm 20mm; margin: 0 auto 20px auto;
+            background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            border-radius: 4px; box-sizing: border-box; position: relative;
+            display: flex; flex-direction: column; justify-content: space-between;
+            page-break-after: always; page-break-inside: avoid;
         }
-
-        /* Screen responsive sizing for live preview */
         @media screen and (max-width: 1024px) {
-            #previewWrapper {
-                width: 100%;
-                overflow-x: auto;
-                display: flex;
-                justify-content: flex-start;
-                padding-bottom: 20px;
-            }
-            #previewContainer {
-                transform: scale(0.85);
-                transform-origin: top left;
-                width: 210mm;
-                height: calc(297mm * 0.85);
-                margin-right: -31mm; /* offset scaled space */
-            }
+            #previewWrapper { width:100%; overflow-x:auto; display:flex; justify-content:flex-start; padding-bottom:20px; }
+            #previewContainer { transform:scale(0.85); transform-origin:top left; width:210mm; height:calc(297mm * 0.85); margin-right:-31mm; }
         }
-        @media screen and (max-width: 768px) {
-            #previewContainer {
-                transform: scale(0.65);
-                transform-origin: top left;
-                width: 210mm;
-                height: calc(297mm * 0.65);
-                margin-right: -73mm;
-            }
-        }
-        @media screen and (max-width: 640px) {
-            #previewContainer {
-                transform: scale(0.48);
-                transform-origin: top left;
-                width: 210mm;
-                height: calc(297mm * 0.48);
-                margin-right: -109mm;
-            }
-        }
-
-        /* Print CSS Stylesheet */
-        @page {
-            size: A4 portrait;
-            margin: 0;
-        }
-
+        @media screen and (max-width: 768px) { #previewContainer { transform:scale(0.65); transform-origin:top left; width:210mm; height:calc(297mm * 0.65); margin-right:-73mm; } }
+        @media screen and (max-width: 640px) { #previewContainer { transform:scale(0.48); transform-origin:top left; width:210mm; height:calc(297mm * 0.48); margin-right:-109mm; } }
+        @page { size: A4 portrait; margin: 0; }
         @media print {
-            body {
-                background-color: #ffffff !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                width: 210mm !important;
-                height: 297mm !important;
-            }
-            .no-print {
-                display: none !important;
-            }
-            #previewWrapper {
-                overflow: visible !important;
-                display: block !important;
-                width: auto !important;
-                height: auto !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            #previewContainer {
-                transform: none !important;
-                width: 210mm !important;
-                height: auto !important;
-                margin-right: 0 !important;
-                display: block !important;
-            }
-            .a4-page {
-                width: 210mm !important;
-                height: 297mm !important;
-                min-height: 297mm !important;
-                max-height: 297mm !important;
-                padding: 15mm 20mm 15mm 20mm !important;
-                margin: 0 !important;
-                box-shadow: none !important;
-                border-radius: 0 !important;
-                page-break-after: always !important;
-                page-break-inside: avoid !important;
-                float: none;
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: space-between !important;
-            }
-            .a4-page:last-child {
-                page-break-after: avoid !important;
-            }
-            /* Force print colors */
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
+            body { background-color:#fff !important; padding:0 !important; margin:0 !important; width:210mm !important; height:297mm !important; }
+            .no-print { display:none !important; }
+            #previewWrapper { overflow:visible !important; display:block !important; width:auto !important; height:auto !important; padding:0 !important; margin:0 !important; }
+            #previewContainer { transform:none !important; width:210mm !important; height:auto !important; margin-right:0 !important; display:block !important; }
+            .a4-page { width:210mm !important; height:297mm !important; min-height:297mm !important; max-height:297mm !important; padding:15mm 20mm 15mm 20mm !important; margin:0 !important; box-shadow:none !important; border-radius:0 !important; page-break-after:always !important; page-break-inside:avoid !important; float:none; display:flex !important; flex-direction:column !important; justify-content:space-between !important; }
+            .a4-page:last-child { page-break-after:avoid !important; }
+            * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
         }
+        /* Datalist combo-box styling */
+        .combo-input { position:relative; }
+        .combo-input input { width:100%; }
+        /* Loading spinner */
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        /* Save doc_no modal */
+        #saveDocModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; }
+        #saveDocModal.show { display:flex; }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <!-- Main Dynamic Application Grid Wrapper -->
-    <div class="flex flex-col lg:flex-row min-h-screen">
-        
-        <!-- Left Pane: Control Panel / Data Editor -->
-        <div class="w-full lg:w-[450px] bg-slate-900 text-slate-100 p-6 flex-shrink-0 no-print border-r border-slate-800 overflow-y-auto max-h-screen lg:sticky lg:top-0">
-            <div class="flex items-center gap-2.5 mb-6 border-b border-slate-800 pb-4">
-                <div class="bg-indigo-600 p-2 rounded-lg text-white">
-                    <i data-lucide="receipt" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight text-white">ระบบจัดการเอกสาร</h1>
-                    <p class="text-xs text-slate-400">สร้าง ใบเสนอราคา / ใบแจ้งหนี้ / บิล</p>
-                </div>
+<!-- Save Doc Modal -->
+<div id="saveDocModal">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
+        <div class="flex items-center gap-2.5 mb-4">
+            <div class="bg-emerald-600 p-2 rounded-lg"><i data-lucide="save" class="w-5 h-5 text-white"></i></div>
+            <h3 class="text-white font-bold text-base">บันทึกเลขที่เอกสาร</h3>
+        </div>
+        <p class="text-slate-400 text-xs mb-4 leading-relaxed">บันทึก <strong id="modal-doc-no" class="text-emerald-400"></strong> ลง Log ใน Google Sheets เพื่อป้องกันเลขซ้ำ</p>
+        <div class="space-y-3 mb-5">
+            <div>
+                <label class="text-xs text-slate-400 block mb-1">ประเภทเอกสาร</label>
+                <div id="modal-doc-type" class="bg-slate-800 rounded-lg px-3 py-2 text-sm text-white"></div>
             </div>
-
-            <!-- Tab Menu -->
-            <div class="flex gap-2 mb-6 bg-slate-800 p-1 rounded-lg text-xs">
-                <button onclick="switchTab('tab-general')" id="btn-tab-general" class="flex-1 py-2 rounded-md font-medium text-center bg-indigo-600 text-white transition-all">ทั่วไป / ลูกค้า</button>
-                <button onclick="switchTab('tab-items')" id="btn-tab-items" class="flex-1 py-2 rounded-md font-medium text-center text-slate-400 hover:text-white transition-all">รายการสินค้า</button>
-                <button onclick="switchTab('tab-payment')" id="btn-tab-payment" class="flex-1 py-2 rounded-md font-medium text-center text-slate-400 hover:text-white transition-all">การชำระเงิน</button>
+            <div>
+                <label class="text-xs text-slate-400 block mb-1">รหัสลูกค้า (customer_id)</label>
+                <input type="text" id="modal-customer-id" placeholder="เช่น C001" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
             </div>
-
-            <!-- TAB 1: General & Client Info -->
-            <div id="tab-general" class="space-y-4 tab-content">
-                <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2">ประเภทและรูปแบบเอกสาร</h3>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">ประเภทเอกสาร</label>
-                    <select onchange="updateState('docType', this.value)" id="input-doc-type" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                        <option value="quotation">ใบเสนอราคา (Quotation)</option>
-                        <option value="invoice">ใบแจ้งหนี้ (Invoice)</option>
-                        <option value="bill">บิลเงินสด / ใบเสร็จรับเงิน (Bill / Receipt)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">ธีมสีสัญลักษณ์</label>
-                    <select onchange="updateState('theme', this.value)" id="input-theme" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                        <option value="indigo">สีน้ำเงินเข้ม (Indigo)</option>
-                        <option value="emerald">สีเขียวมรกต (Emerald)</option>
-                        <option value="rose">สีชมพูแดง (Rose)</option>
-                        <option value="slate">สีเทาดำ (Slate)</option>
-                    </select>
-                </div>
-
-                <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2 pt-4">ข้อมูลผู้ออกเอกสาร (บริษัทเรา)</h3>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">ชื่อบริษัท / ผู้ออกเอกสาร</label>
-                    <input type="text" id="input-co-name" oninput="updateNestedState('company', 'name', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">ที่อยู่บริษัท</label>
-                    <textarea id="input-co-address" oninput="updateNestedState('company', 'address', this.value)" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500"></textarea>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">เลขผู้เสียภาษี</label>
-                        <input type="text" id="input-co-tax" oninput="updateNestedState('company', 'taxId', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">เบอร์โทรศัพท์</label>
-                        <input type="text" id="input-co-phone" oninput="updateNestedState('company', 'phone', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                </div>
-
-                <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2 pt-4">ข้อมูลเอกสารทั่วไป</h3>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">เลขที่เอกสาร</label>
-                        <input type="text" id="input-doc-no" oninput="updateNestedState('document', 'no', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">วันที่ออก</label>
-                        <input type="text" id="input-doc-date" oninput="updateNestedState('document', 'date', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">กำหนดชำระเงิน</label>
-                        <input type="text" id="input-doc-due" oninput="updateNestedState('document', 'dueDate', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">ผู้จัดทำ/ผู้ติดต่อ</label>
-                        <input type="text" id="input-doc-sales" oninput="updateNestedState('document', 'salesPerson', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                </div>
-
-                <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2 pt-4">ข้อมูลผู้ซื้อ / ลูกค้า</h3>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">ชื่อลูกค้า/บริษัทผู้ซื้อ</label>
-                    <input type="text" id="input-cust-name" oninput="updateNestedState('customer', 'name', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">ที่อยู่ลูกค้า</label>
-                    <textarea id="input-cust-address" oninput="updateNestedState('customer', 'address', this.value)" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500"></textarea>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">เลขประจำตัวผู้เสียภาษี</label>
-                        <input type="text" id="input-cust-tax" oninput="updateNestedState('customer', 'taxId', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">ผู้ติดต่อลูกค้า</label>
-                        <input type="text" id="input-cust-contact" oninput="updateNestedState('customer', 'contact', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">อีเมลติดต่อลูกค้า</label>
-                    <input type="text" id="input-cust-email" oninput="updateNestedState('customer', 'email', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                </div>
-            </div>
-
-            <!-- TAB 2: Items List Management -->
-            <div id="tab-items" class="space-y-4 tab-content hidden">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                    <h3 class="text-sm font-semibold text-indigo-400">รายการสินค้าและบริการ (หน้าละ 8 รายการ)</h3>
-                    <span id="items-count" class="bg-indigo-900 text-indigo-200 text-xs px-2.5 py-1 rounded-full font-bold">3 รายการ</span>
-                </div>
-                
-                <div id="editor-items-container" class="space-y-3 max-h-[450px] overflow-y-auto pr-1">
-                    <!-- Dynamic Items will be rendered here via JS -->
-                </div>
-
-                <button onclick="addStateItem()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs flex items-center justify-center gap-1.5 transition duration-150">
-                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                    เพิ่มรายการสินค้าใหม่
-                </button>
-            </div>
-
-            <!-- TAB 3: Payments and Settings -->
-            <div id="tab-payment" class="space-y-4 tab-content hidden">
-                <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2">ช่องทางรับชำระเงิน</h3>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">วิธีการชำระเงิน</label>
-                    <select onchange="updatePaymentMethod(this.value)" id="input-pay-method" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                        <option value="transfer">โอนเงินผ่านบัญชีธนาคาร (Bank Transfer)</option>
-                        <option value="cheque">ชำระด้วยเช็คธนาคาร (Cheque)</option>
-                        <option value="cash">เงินสด (Cash)</option>
-                    </select>
-                </div>
-
-                <!-- Container: Bank Transfer Fields -->
-                <div id="bank-fields-container" class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">ชื่อธนาคาร</label>
-                        <input type="text" id="input-pay-bank" oninput="updateNestedState('payment', 'bankName', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">เลขบัญชีธนาคาร</label>
-                        <input type="text" id="input-pay-no" oninput="updateNestedState('payment', 'accountNo', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">ชื่อบัญชี</label>
-                        <input type="text" id="input-pay-name" oninput="updateNestedState('payment', 'accountName', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">พร้อมเพย์ (ไม่บังคับ)</label>
-                        <input type="text" id="input-pay-pp" oninput="updateNestedState('payment', 'promptPay', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                </div>
-
-                <!-- Container: Cheque Fields -->
-                <div id="cheque-fields-container" class="space-y-3 hidden">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">ธนาคารเจ้าของเช็ค</label>
-                        <input type="text" id="input-cheque-bank" oninput="updateNestedState('payment', 'chequeBank', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500" placeholder="ตัวอย่าง: ธนาคารกสิกรไทย">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">หมายเลขเช็ค</label>
-                        <input type="text" id="input-cheque-no" oninput="updateNestedState('payment', 'chequeNo', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500" placeholder="ตัวอย่าง: 10245874">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">วันที่บนเช็ค (ลงวันที่)</label>
-                        <input type="text" id="input-cheque-date" oninput="updateNestedState('payment', 'chequeDate', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500" placeholder="ตัวอย่าง: 30 มิถุนายน 2569">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">สั่งจ่ายในนาม (Payee)</label>
-                        <input type="text" id="input-payee-name" oninput="updateNestedState('payment', 'accountName', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                </div>
-
-                <!-- Container: Cash Fields -->
-                <div id="cash-fields-container" class="space-y-3 hidden">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">หมายเลขการชำระ / เลขอ้างอิงบิล (ระบุหรือไม่ก็ได้)</label>
-                        <input type="text" id="input-cash-ref" oninput="updateNestedState('payment', 'cashRef', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500" placeholder="ตัวอย่าง: CS-2026-009">
-                    </div>
-                </div>
-
-                <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2 pt-4">การคำนวณและอัตราภาษี</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">อัตราภาษี VAT (%)</label>
-                        <select onchange="updateState('vatRate', parseFloat(this.value))" id="input-vat-rate" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                            <option value="0">0%</option>
-                            <option value="7">7%</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">หัก ณ ที่จ่าย (%)</label>
-                        <select onchange="updateState('whtRate', parseFloat(this.value))" id="input-wht-rate" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                            <option value="0">0% (ไม่หัก)</option>
-                            <option value="1">1%</option>
-                            <option value="3">3%</option>
-                            <option value="5">5%</option>
-                        </select>
-                    </div>
-                </div>
-
-                <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2 pt-4">หมายเหตุเพิ่มเติม (Notes)</h3>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">หมายเหตุบรรทัดที่ 1</label>
-                    <input type="text" id="input-note-1" oninput="updateArrayState('notes', 0, this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">หมายเหตุบรรทัดที่ 2</label>
-                    <input type="text" id="input-note-2" oninput="updateArrayState('notes', 1, this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
-                </div>
-            </div>
-
-            <!-- Actions and PDF Trigger -->
-            <div class="mt-8 pt-6 border-t border-slate-800 space-y-3">
-                <!-- iFrame Print Guard & Warning -->
-                <div id="print-warning-box" class="bg-rose-950/40 border border-rose-900/60 p-3 rounded-lg text-[11px] text-rose-300 leading-relaxed mb-1">
-                    <span class="font-bold flex items-center gap-1.5 mb-1 text-rose-400">
-                        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-                        คำแนะนำสำคัญเพื่อพิมพ์ PDF:
-                    </span>
-                    เนื่องจากระบบป้องกันของ Canvas บล็อกการบันทึก PDF โดยตรง กรุณาคลิกปุ่ม <strong class="text-white">"เปิดพรีวิวเต็มจอ"</strong> ที่มุมขวาบนของหน้านี้ก่อน หรือกดพิมพ์ด้านล่างหลังจากเปิดหน้าต่างใหม่แล้ว
-                </div>
-
-                <button onclick="triggerPrintWithGuard()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-150 flex items-center justify-center gap-2">
-                    <i data-lucide="printer" class="w-5 h-5"></i>
-                    บันทึก / ดาวน์โหลด PDF (A4)
-                </button>
+            <div>
+                <label class="text-xs text-slate-400 block mb-1">วันที่เอกสาร (doc_date)</label>
+                <input type="date" id="modal-doc-date" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 outline-none">
             </div>
         </div>
-
-        <!-- Right Pane: Real-time dynamic A4 Printable Render Container -->
-        <div id="previewWrapper" class="flex-1 p-4 lg:p-8 overflow-y-auto bg-slate-100 flex flex-col items-center">
-            <div id="previewContainer" class="w-full flex flex-col items-center">
-                <!-- A4 sheets will be dynamically rendered here based on 8-items grouping -->
-            </div>
+        <div id="modal-status" class="text-xs text-slate-400 mb-3 hidden"></div>
+        <div class="flex gap-2">
+            <button onclick="closeSaveModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-2.5 rounded-xl text-sm transition">ยกเลิก</button>
+            <button onclick="saveDocToSheet()" id="modal-save-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-1.5">
+                <i data-lucide="check-circle" class="w-4 h-4"></i> บันทึก Log
+            </button>
         </div>
-
     </div>
+</div>
 
-    <!-- Script Section: State Management, Dynamic Render Engine, Calculations -->
-    <script>
-        // State Configuration Object
-        let state = {
-            docType: 'quotation', // 'quotation', 'invoice', 'bill'
-            theme: 'indigo',      // 'indigo', 'emerald', 'rose', 'slate'
-            company: {
-                name: "บริษัท ตัวอย่างการค้า จำกัด (สำนักงานใหญ่)",
-                address: "456/78 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร 10110",
-                taxId: "0105565001234",
-                phone: "02-999-8888"
-            },
-            document: {
-                no: "QT-2026-0001",
-                date: "31 พฤษภาคม 2569",
-                dueDate: "30 มิถุนายน 2569",
-                salesPerson: "สมชาย ยอดรัก"
-            },
-            customer: {
-                name: "บริษัท ตัวอย่างลูกค้าดีงาม จำกัด (มหาชน)",
-                address: "99/1 อาคารสาทรทาวเวอร์ ชั้น 15 ถนนสาทรใต้ แขวงยานนาวา เขตสาทร กรุงเทพมหานคร 10120",
-                taxId: "0107560000987",
-                contact: "คุณกมลวรรณ ทรัพย์ดี",
-                email: "kamonwan.s@clientcorp.co.th"
-            },
-            items: [
-                { desc: "บริการวิเคราะห์และประเมินผลระบบเครือข่ายองค์กรแบบครบวงจร", qty: 1, price: 15000 },
-                { desc: "ติดตั้งชุดประมวลผลเครือข่ายความเร็วสูง (Enterprise Core Engine)", qty: 2, price: 32500 },
-                { desc: "บริการจัดทำโครงร่างข้อมูลด้านเทคนิคระดับโปรแกรมเมอร์มืออาชีพ", qty: 1, price: 12000 }
-            ],
-            vatRate: 7,
-            whtRate: 3,
-            payment: {
-                method: 'transfer', // 'transfer', 'cheque', or 'cash'
-                bankName: "ธนาคารไทยพาณิชย์ (SCB)",
-                accountNo: "123-4-56789-0",
-                accountName: "บริษัท ตัวอย่างการค้า จำกัด",
-                promptPay: "0105565001234",
-                chequeBank: "ธนาคารกสิกรไทย",
-                chequeNo: "10245874",
-                chequeDate: "30 มิถุนายน 2569",
-                cashRef: "CS-2026-001"
-            },
-            notes: [
-                "โปรดตรวจสอบความถูกต้องของรายการและโอนเงินเข้าบัญชีภายในเวลาที่ระบุในเอกสาร",
-                "เอกสารฉบับนี้จัดทำขึ้นโดยระบบอัตโนมัติ ไม่ต้องมีตราประทับ"
-            ]
-        };
+<div class="flex flex-col lg:flex-row min-h-screen">
 
-        // Theme Classes dictionary
-        const themeMap = {
-            indigo: {
-                text: 'text-indigo-600',
-                bg: 'bg-indigo-600',
-                border: 'border-indigo-600',
-                lightBg: 'bg-indigo-50/75',
-                borderL: 'border-l-indigo-600',
-                badgeText: 'text-indigo-900',
-                accentText: 'text-indigo-700',
-                accentBorder: 'border-indigo-100',
-                gradient: 'from-indigo-600 to-indigo-800'
-            },
-            emerald: {
-                text: 'text-emerald-600',
-                bg: 'bg-emerald-600',
-                border: 'border-emerald-600',
-                lightBg: 'bg-emerald-50/75',
-                borderL: 'border-l-emerald-600',
-                badgeText: 'text-emerald-900',
-                accentText: 'text-emerald-700',
-                accentBorder: 'border-emerald-100',
-                gradient: 'from-emerald-600 to-emerald-800'
-            },
-            rose: {
-                text: 'text-rose-600',
-                bg: 'bg-rose-600',
-                border: 'border-rose-600',
-                lightBg: 'bg-rose-50/75',
-                borderL: 'border-l-rose-600',
-                badgeText: 'text-rose-900',
-                accentText: 'text-rose-700',
-                accentBorder: 'border-rose-100',
-                gradient: 'from-rose-600 to-rose-800'
-            },
-            slate: {
-                text: 'text-slate-800',
-                bg: 'bg-slate-800',
-                border: 'border-slate-800',
-                lightBg: 'bg-slate-100',
-                borderL: 'border-l-slate-800',
-                badgeText: 'text-slate-900',
-                accentText: 'text-slate-800',
-                accentBorder: 'border-slate-200',
-                gradient: 'from-slate-700 to-slate-950'
-            }
-        };
+    <!-- Left Pane -->
+    <div class="w-full lg:w-[450px] bg-slate-900 text-slate-100 p-6 flex-shrink-0 no-print border-r border-slate-800 overflow-y-auto max-h-screen lg:sticky lg:top-0">
 
-        // Document Titles Map
-        const docTitleMap = {
-            quotation: { th: "ใบเสนอราคา", en: "QUOTATION", prefix: "QT" },
-            indigo: { th: "ใบแจ้งหนี้", en: "INVOICE", prefix: "IV" },
-            invoice: { th: "ใบแจ้งหนี้", en: "INVOICE", prefix: "IV" },
-            bill: { th: "ใบเสร็จรับเงิน / บิลเงินสด", en: "RECEIPT / BILL", prefix: "RE" }
-        };
+        <div class="flex items-center gap-2.5 mb-4 border-b border-slate-800 pb-4">
+            <div class="bg-indigo-600 p-2 rounded-lg text-white"><i data-lucide="receipt" class="w-6 h-6"></i></div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight text-white">ระบบจัดการเอกสาร</h1>
+                <p class="text-xs text-slate-400">สร้าง ใบเสนอราคา / ใบแจ้งหนี้ / บิล</p>
+            </div>
+        </div>
 
-        // Initialize state on DOM load
-        document.addEventListener("DOMContentLoaded", function() {
-            lucide.createIcons();
-            loadStateIntoInputs();
-            renderApplication();
-            detectIframeMode();
-        });
+        <!-- Google Sheets Config -->
+        <div class="bg-slate-800 rounded-xl p-3 mb-4 border border-slate-700">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                    <i data-lucide="database" class="w-3.5 h-3.5"></i> Google Sheets DB
+                </span>
+                <button onclick="toggleSheetConfig()" id="sheet-config-toggle" class="text-slate-400 hover:text-white text-[10px] underline">ตั้งค่า</button>
+            </div>
+            <div id="sheet-config-panel" class="hidden space-y-2">
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">Spreadsheet ID</label>
+                    <input type="text" id="input-sheet-id" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white focus:ring-1 focus:ring-indigo-500 outline-none" oninput="saveSheetConfig()">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">API Key (Google Sheets)</label>
+                    <input type="password" id="input-sheet-api-key" placeholder="AIzaSy..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white focus:ring-1 focus:ring-indigo-500 outline-none" oninput="saveSheetConfig()">
+                </div>
+                <p class="text-[10px] text-slate-500 leading-relaxed">ต้องการ Sheets API v4 key และตั้ง Sheet ชื่อ <strong class="text-slate-300">Customer</strong>, <strong class="text-slate-300">BankAccounts</strong>, <strong class="text-slate-300">Log</strong></p>
+            </div>
+            <div id="sheet-status-row" class="flex items-center gap-2 mt-1">
+                <div id="sheet-status-dot" class="w-2 h-2 rounded-full bg-slate-600"></div>
+                <span id="sheet-status-text" class="text-[10px] text-slate-500">ยังไม่ได้เชื่อมต่อ</span>
+                <button onclick="loadFromSheets()" class="ml-auto text-[10px] bg-slate-700 hover:bg-slate-600 text-white px-2 py-0.5 rounded transition">โหลดข้อมูล</button>
+            </div>
+        </div>
 
-        // Detect if app is running inside iframe sandbox
-        function detectIframeMode() {
-            try {
-                if (window.self !== window.top) {
-                    document.getElementById('print-warning-box').classList.remove('hidden');
-                } else {
-                    document.getElementById('print-warning-box').classList.add('hidden');
-                }
-            } catch (e) {
-                document.getElementById('print-warning-box').classList.remove('hidden');
-            }
-        }
+        <!-- Tab Menu -->
+        <div class="flex gap-2 mb-6 bg-slate-800 p-1 rounded-lg text-xs">
+            <button onclick="switchTab('tab-general')" id="btn-tab-general" class="flex-1 py-2 rounded-md font-medium text-center bg-indigo-600 text-white transition-all">ทั่วไป / ลูกค้า</button>
+            <button onclick="switchTab('tab-items')" id="btn-tab-items" class="flex-1 py-2 rounded-md font-medium text-center text-slate-400 hover:text-white transition-all">รายการสินค้า</button>
+            <button onclick="switchTab('tab-payment')" id="btn-tab-payment" class="flex-1 py-2 rounded-md font-medium text-center text-slate-400 hover:text-white transition-all">การชำระเงิน</button>
+        </div>
 
-        // Trigger safe print with check
-        function triggerPrintWithGuard() {
-            try {
-                window.print();
-            } catch (err) {
-                alert("ระบบเบราว์เซอร์บล็อกการสั่งพิมพ์ กรุณากดปุ่มเปิดพรีวิวเต็มจอที่มุมขวาบนก่อน เพื่อดาวน์โหลด PDF");
-            }
-        }
+        <!-- TAB 1: General & Client Info -->
+        <div id="tab-general" class="space-y-4 tab-content">
+            <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2">ประเภทและรูปแบบเอกสาร</h3>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">ประเภทเอกสาร</label>
+                <select onchange="updateState('docType', this.value); autoGenerateDocNo()" id="input-doc-type" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                    <option value="quotation">ใบเสนอราคา (Quotation)</option>
+                    <option value="invoice">ใบแจ้งหนี้ (Invoice)</option>
+                    <option value="bill">บิลเงินสด / ใบเสร็จรับเงิน (Bill / Receipt)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">ธีมสีสัญลักษณ์</label>
+                <select onchange="updateState('theme', this.value)" id="input-theme" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                    <option value="indigo">สีน้ำเงินเข้ม (Indigo)</option>
+                    <option value="emerald">สีเขียวมรกต (Emerald)</option>
+                    <option value="rose">สีชมพูแดง (Rose)</option>
+                    <option value="slate">สีเทาดำ (Slate)</option>
+                </select>
+            </div>
 
-        // Set form fields based on state
-        function loadStateIntoInputs() {
-            document.getElementById('input-doc-type').value = state.docType;
-            document.getElementById('input-theme').value = state.theme;
+            <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2 pt-4">ข้อมูลผู้ออกเอกสาร (บริษัทเรา)</h3>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">ชื่อบริษัท / ผู้ออกเอกสาร</label>
+                <input type="text" id="input-co-name" oninput="updateNestedState('company', 'name', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">ที่อยู่บริษัท</label>
+                <textarea id="input-co-address" oninput="updateNestedState('company', 'address', this.value)" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">เลขผู้เสียภาษี</label>
+                    <input type="text" id="input-co-tax" oninput="updateNestedState('company', 'taxId', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">เบอร์โทรศัพท์</label>
+                    <input type="text" id="input-co-phone" oninput="updateNestedState('company', 'phone', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
 
-            document.getElementById('input-co-name').value = state.company.name;
-            document.getElementById('input-co-address').value = state.company.address;
-            document.getElementById('input-co-tax').value = state.company.taxId;
-            document.getElementById('input-co-phone').value = state.company.phone;
-
-            document.getElementById('input-doc-no').value = state.document.no;
-            document.getElementById('input-doc-date').value = state.document.date;
-            document.getElementById('input-doc-due').value = state.document.dueDate;
-            document.getElementById('input-doc-sales').value = state.document.salesPerson;
-
-            document.getElementById('input-cust-name').value = state.customer.name;
-            document.getElementById('input-cust-address').value = state.customer.address;
-            document.getElementById('input-cust-tax').value = state.customer.taxId;
-            document.getElementById('input-cust-contact').value = state.customer.contact;
-            document.getElementById('input-cust-email').value = state.customer.email;
-
-            // Payment values
-            document.getElementById('input-pay-method').value = state.payment.method;
-            document.getElementById('input-pay-bank').value = state.payment.bankName;
-            document.getElementById('input-pay-no').value = state.payment.accountNo;
-            document.getElementById('input-pay-name').value = state.payment.accountName;
-            document.getElementById('input-pay-pp').value = state.payment.promptPay;
-            
-            document.getElementById('input-cheque-bank').value = state.payment.chequeBank || '';
-            document.getElementById('input-cheque-no').value = state.payment.chequeNo || '';
-            document.getElementById('input-cheque-date').value = state.payment.chequeDate || '';
-            document.getElementById('input-payee-name').value = state.payment.accountName;
-            
-            document.getElementById('input-cash-ref').value = state.payment.cashRef || '';
-
-            togglePaymentMethodInputs(state.payment.method);
-
-            document.getElementById('input-vat-rate').value = state.vatRate;
-            document.getElementById('input-wht-rate').value = state.whtRate;
-
-            document.getElementById('input-note-1').value = state.notes[0] || '';
-            document.getElementById('input-note-2').value = state.notes[1] || '';
-        }
-
-        // Toggle UI panel containers based on Payment Method selected
-        function togglePaymentMethodInputs(method) {
-            const bankContainer = document.getElementById('bank-fields-container');
-            const chequeContainer = document.getElementById('cheque-fields-container');
-            const cashContainer = document.getElementById('cash-fields-container');
-            
-            if (method === 'cheque') {
-                bankContainer.classList.add('hidden');
-                chequeContainer.classList.remove('hidden');
-                cashContainer.classList.add('hidden');
-            } else if (method === 'cash') {
-                bankContainer.classList.add('hidden');
-                chequeContainer.classList.add('hidden');
-                cashContainer.classList.remove('hidden');
-            } else {
-                bankContainer.classList.remove('hidden');
-                chequeContainer.classList.add('hidden');
-                cashContainer.classList.add('hidden');
-            }
-        }
-
-        function updatePaymentMethod(method) {
-            updateNestedState('payment', 'method', method);
-            togglePaymentMethodInputs(method);
-        }
-
-        // Tab Switching Engine
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
-
-            document.querySelectorAll('[id^="btn-tab-"]').forEach(btn => {
-                btn.classList.remove('bg-indigo-600', 'text-white');
-                btn.classList.add('text-slate-400');
-            });
-            document.getElementById('btn-' + tabId).classList.add('bg-indigo-600', 'text-white');
-            document.getElementById('btn-' + tabId).classList.remove('text-slate-400');
-        }
-
-        // State update utility handlers
-        function updateState(key, val) {
-            state[key] = val;
-            renderApplication();
-        }
-
-        function updateNestedState(nestedKey, key, val) {
-            state[nestedKey][key] = val;
-            // Align payee/accountName dynamically when sync'ed
-            if (nestedKey === 'payment' && key === 'accountName') {
-                document.getElementById('input-payee-name').value = val;
-                document.getElementById('input-pay-name').value = val;
-            }
-            renderApplication();
-        }
-
-        function updateArrayState(arrayKey, index, val) {
-            state[arrayKey][index] = val;
-            renderApplication();
-        }
-
-        // Add dynamic row element inside state
-        function addStateItem() {
-            state.items.push({ desc: "รายละเอียดสินค้าหรือบริการเพิ่มเติม", qty: 1, price: 0 });
-            renderApplication();
-            renderItemsTabEditor();
-        }
-
-        // Delete dynamic row element inside state
-        function deleteStateItem(index) {
-            state.items.splice(index, 1);
-            renderApplication();
-            renderItemsTabEditor();
-        }
-
-        // Update single dynamic item property inside state
-        function updateStateItemValue(index, field, value) {
-            if (field === 'qty') {
-                state.items[index][field] = parseInt(value) || 0;
-            } else if (field === 'price') {
-                state.items[index][field] = parseFloat(value) || 0;
-            } else {
-                state.items[index][field] = value;
-            }
-            renderApplication();
-        }
-
-        // Format float to localized accounting format
-        function formatMoney(amount) {
-            return amount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        // Thai Baht Text Conversion Algorithm
-        function arabToBahtText(num) {
-            let number = num.toFixed(2);
-            let [integerPart, decimalPart] = number.split('.');
-            
-            let bahtText = "";
-            const thaiNumbers = ["ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"];
-            const thaiUnits = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
-
-            if (parseFloat(number) === 0) {
-                return "ศูนย์บาทถ้วน";
-            }
-
-            // Convert Integer Part
-            let len = integerPart.length;
-            for (let i = 0; i < len; i++) {
-                let digit = parseInt(integerPart.charAt(i));
-                let position = len - 1 - i;
-
-                // Handle Millions boundary transition
-                if (position > 0 && position % 6 === 0 && digit === 0) {
-                    if (integerPart.length > 7 && integerPart.substring(i - 5, i + 1) !== "000000") {
-                        bahtText += "ล้าน";
-                    }
-                    continue;
-                }
-
-                let unitPos = position % 6;
-                if (digit !== 0) {
-                    if (unitPos === 1 && digit === 1) {
-                        bahtText += "สิบ";
-                    } else if (unitPos === 1 && digit === 2) {
-                        bahtText += "ยี่สิบ";
-                    } else if (unitPos === 0 && digit === 1 && len > 1 && i > 0 && (integerPart.charAt(i-1) !== '0' || len > 7)) {
-                        bahtText += "เอ็ด";
-                    } else {
-                        bahtText += thaiNumbers[digit];
-                    }
-                    bahtText += thaiUnits[unitPos];
-                }
-                
-                if (position > 0 && position % 6 === 0 && i > 0) {
-                    bahtText += "ล้าน";
-                }
-            }
-
-            if (integerPart !== "0" && integerPart !== "") {
-                bahtText += "บาท";
-            }
-
-            // Convert Decimal Part
-            if (decimalPart === "00" || decimalPart === undefined) {
-                bahtText += "ถ้วน";
-            } else {
-                let decLen = decimalPart.length;
-                for (let i = 0; i < decLen; i++) {
-                    let digit = parseInt(decimalPart.charAt(i));
-                    let position = decLen - 1 - i;
-
-                    if (digit !== 0) {
-                        if (position === 0 && digit === 1 && decimalPart.charAt(0) !== '0') {
-                            bahtText += "เอ็ด";
-                        } else if (position === 1 && digit === 1) {
-                            bahtText += "สิบ";
-                        } else if (position === 1 && digit === 2) {
-                            bahtText += "ยี่สิบ";
-                        } else {
-                            bahtText += thaiNumbers[digit];
-                        }
-                        if (position === 1) bahtText += "สิบ";
-                    }
-                }
-                bahtText += "สตางค์";
-            }
-
-            return bahtText;
-        }
-
-        // Render input editors inside Items tab
-        function renderItemsTabEditor() {
-            const container = document.getElementById('editor-items-container');
-            document.getElementById('items-count').innerText = `${state.items.length} รายการ`;
-            
-            container.innerHTML = '';
-            
-            state.items.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'bg-slate-800 p-3 rounded-lg border border-slate-700 space-y-2';
-                div.innerHTML = `
-                    <div class="flex items-center justify-between gap-2">
-                        <span class="text-xs font-bold text-indigo-400 bg-slate-900 px-2 py-0.5 rounded">ลำดับ #${index + 1}</span>
-                        <button onclick="deleteStateItem(${index})" class="text-rose-500 hover:text-rose-400 p-0.5 transition" title="ลบรายการนี้">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2 pt-4">ข้อมูลเอกสารทั่วไป</h3>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">เลขที่เอกสาร
+                        <span id="doc-no-loading" class="hidden ml-1"><i data-lucide="loader" class="w-3 h-3 inline spin text-indigo-400"></i></span>
+                    </label>
+                    <div class="flex gap-1">
+                        <input type="text" id="input-doc-no" oninput="updateNestedState('document', 'no', this.value)" class="flex-1 bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                        <button onclick="autoGenerateDocNo(true)" title="สร้างเลขที่ใหม่" class="bg-slate-700 hover:bg-indigo-600 text-white rounded-lg px-2 transition" >
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
                         </button>
                     </div>
+                    <p class="text-[10px] text-slate-500 mt-0.5">คลิก 🔄 สร้างเลขถัดไปอัตโนมัติ</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">วันที่ออก</label>
+                    <input type="text" id="input-doc-date" oninput="updateNestedState('document', 'date', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">กำหนดชำระเงิน</label>
+                    <input type="text" id="input-doc-due" oninput="updateNestedState('document', 'dueDate', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">ผู้จัดทำ/ผู้ติดต่อ</label>
+                    <input type="text" id="input-doc-sales" oninput="updateNestedState('document', 'salesPerson', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2 pt-4">ข้อมูลผู้ซื้อ / ลูกค้า</h3>
+            <!-- Customer Name with Dropdown from Sheets -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">ชื่อลูกค้า/บริษัทผู้ซื้อ
+                    <span class="text-slate-600 font-normal">(พิมพ์หรือเลือกจาก DB)</span>
+                </label>
+                <div class="relative">
+                    <input type="text" id="input-cust-name" list="list-customers" autocomplete="off"
+                        oninput="updateNestedState('customer', 'name', this.value); autofillCustomer(this.value)"
+                        class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                    <datalist id="list-customers"></datalist>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">ที่อยู่ลูกค้า</label>
+                <textarea id="input-cust-address" oninput="updateNestedState('customer', 'address', this.value)" rows="2" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">เลขประจำตัวผู้เสียภาษี</label>
+                    <input type="text" id="input-cust-tax" oninput="updateNestedState('customer', 'taxId', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">ผู้ติดต่อลูกค้า</label>
+                    <input type="text" id="input-cust-contact" oninput="updateNestedState('customer', 'contact', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">อีเมลติดต่อลูกค้า</label>
+                <input type="text" id="input-cust-email" oninput="updateNestedState('customer', 'email', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+            </div>
+        </div>
+
+        <!-- TAB 2: Items List Management -->
+        <div id="tab-items" class="space-y-4 tab-content hidden">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="text-sm font-semibold text-indigo-400">รายการสินค้าและบริการ (หน้าละ 8 รายการ)</h3>
+                <span id="items-count" class="bg-indigo-900 text-indigo-200 text-xs px-2.5 py-1 rounded-full font-bold">3 รายการ</span>
+            </div>
+            <div id="editor-items-container" class="space-y-3 max-h-[450px] overflow-y-auto pr-1"></div>
+            <button onclick="addStateItem()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> เพิ่มรายการสินค้าใหม่
+            </button>
+        </div>
+
+        <!-- TAB 3: Payments -->
+        <div id="tab-payment" class="space-y-4 tab-content hidden">
+            <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2">ช่องทางรับชำระเงิน</h3>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">วิธีการชำระเงิน</label>
+                <select onchange="updatePaymentMethod(this.value)" id="input-pay-method" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                    <option value="transfer">โอนเงินผ่านบัญชีธนาคาร (Bank Transfer)</option>
+                    <option value="cheque">ชำระด้วยเช็คธนาคาร (Cheque)</option>
+                    <option value="cash">เงินสด (Cash)</option>
+                </select>
+            </div>
+            <!-- Bank Transfer Fields -->
+            <div id="bank-fields-container" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">ธนาคาร
+                        <span class="text-slate-600 font-normal">(พิมพ์หรือเลือกจาก DB)</span>
+                    </label>
+                    <input type="text" id="input-pay-bank" list="list-banks" autocomplete="off"
+                        oninput="updateNestedState('payment', 'bankName', this.value); autofillBank(this.value)"
+                        class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                    <datalist id="list-banks"></datalist>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">เลขบัญชีธนาคาร</label>
+                    <input type="text" id="input-pay-no" oninput="updateNestedState('payment', 'accountNo', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">ชื่อบัญชี</label>
+                    <input type="text" id="input-pay-name" oninput="updateNestedState('payment', 'accountName', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">พร้อมเพย์ (ไม่บังคับ)</label>
+                    <input type="text" id="input-pay-pp" oninput="updateNestedState('payment', 'promptPay', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+            <!-- Cheque Fields -->
+            <div id="cheque-fields-container" class="space-y-3 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">ธนาคารเจ้าของเช็ค</label>
+                    <input type="text" id="input-cheque-bank" oninput="updateNestedState('payment', 'chequeBank', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500" placeholder="ตัวอย่าง: ธนาคารกสิกรไทย">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">หมายเลขเช็ค</label>
+                    <input type="text" id="input-cheque-no" oninput="updateNestedState('payment', 'chequeNo', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">วันที่บนเช็ค</label>
+                    <input type="text" id="input-cheque-date" oninput="updateNestedState('payment', 'chequeDate', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500" placeholder="ตัวอย่าง: 30 มิถุนายน 2569">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">สั่งจ่ายในนาม (Payee)</label>
+                    <input type="text" id="input-payee-name" oninput="updateNestedState('payment', 'accountName', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+            <!-- Cash Fields -->
+            <div id="cash-fields-container" class="space-y-3 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">หมายเลขการชำระ / เลขอ้างอิงบิล</label>
+                    <input type="text" id="input-cash-ref" oninput="updateNestedState('payment', 'cashRef', this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500" placeholder="ตัวอย่าง: CS-2026-009">
+                </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2 pt-4">การคำนวณและอัตราภาษี</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">อัตราภาษี VAT (%)</label>
+                    <select onchange="updateState('vatRate', parseFloat(this.value))" id="input-vat-rate" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                        <option value="0">0%</option>
+                        <option value="7">7%</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">หัก ณ ที่จ่าย (%)</label>
+                    <select onchange="updateState('whtRate', parseFloat(this.value))" id="input-wht-rate" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+                        <option value="0">0% (ไม่หัก)</option>
+                        <option value="1">1%</option>
+                        <option value="3">3%</option>
+                        <option value="5">5%</option>
+                    </select>
+                </div>
+            </div>
+            <h3 class="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2 pt-4">หมายเหตุเพิ่มเติม (Notes)</h3>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">หมายเหตุบรรทัดที่ 1</label>
+                <input type="text" id="input-note-1" oninput="updateArrayState('notes', 0, this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">หมายเหตุบรรทัดที่ 2</label>
+                <input type="text" id="input-note-2" oninput="updateArrayState('notes', 1, this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500">
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-8 pt-6 border-t border-slate-800 space-y-3">
+            <div id="print-warning-box" class="bg-rose-950/40 border border-rose-900/60 p-3 rounded-lg text-[11px] text-rose-300 leading-relaxed mb-1">
+                <span class="font-bold flex items-center gap-1.5 mb-1 text-rose-400"><i data-lucide="alert-triangle" class="w-4 h-4"></i> คำแนะนำสำคัญเพื่อพิมพ์ PDF:</span>
+                เนื่องจากระบบป้องกันของ Canvas บล็อกการบันทึก PDF โดยตรง กรุณาคลิกปุ่ม <strong class="text-white">"เปิดพรีวิวเต็มจอ"</strong> ก่อน
+            </div>
+
+            <button onclick="triggerPrintWithGuard()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                <i data-lucide="printer" class="w-5 h-5"></i> บันทึก / ดาวน์โหลด PDF (A4)
+            </button>
+
+            <!-- Save Doc No Button (appears after knowing PDF intent) -->
+            <button onclick="openSaveModal()" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl shadow transition flex items-center justify-center gap-2">
+                <i data-lucide="save" class="w-5 h-5"></i>
+                <div class="text-left">
+                    <div class="text-sm">บันทึก Log เลขที่เอกสาร</div>
+                    <div class="text-xs font-normal opacity-80">เก็บ doc_no ลง Google Sheets เพื่อป้องกันซ้ำ</div>
+                </div>
+            </button>
+
+            <!-- Log history display -->
+            <div id="log-preview" class="hidden bg-slate-800 rounded-xl p-3 border border-slate-700">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-slate-400">Log ล่าสุดจาก DB</span>
+                    <button onclick="loadLogFromSheets()" class="text-[10px] text-indigo-400 hover:text-indigo-300">รีเฟรช</button>
+                </div>
+                <div id="log-list" class="space-y-1 max-h-32 overflow-y-auto text-[10px] text-slate-300"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Pane: A4 Preview -->
+    <div id="previewWrapper" class="flex-1 p-4 lg:p-8 overflow-y-auto bg-slate-100 flex flex-col items-center">
+        <div id="previewContainer" class="w-full flex flex-col items-center"></div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // STATE
+    // ============================================================
+    let state = {
+        docType: 'quotation',
+        theme: 'indigo',
+        company: {
+            name: "บริษัท ตัวอย่างการค้า จำกัด (สำนักงานใหญ่)",
+            address: "456/78 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพมหานคร 10110",
+            taxId: "0105565001234",
+            phone: "02-999-8888"
+        },
+        document: {
+            no: "QT260001",
+            date: "31 พฤษภาคม 2569",
+            dueDate: "30 มิถุนายน 2569",
+            salesPerson: "สมชาย ยอดรัก"
+        },
+        customer: {
+            name: "บริษัท ตัวอย่างลูกค้าดีงาม จำกัด (มหาชน)",
+            address: "99/1 อาคารสาทรทาวเวอร์ ชั้น 15 ถนนสาทรใต้ กรุงเทพฯ 10120",
+            taxId: "0107560000987",
+            contact: "คุณกมลวรรณ ทรัพย์ดี",
+            email: "kamonwan.s@clientcorp.co.th"
+        },
+        items: [
+            { desc: "บริการวิเคราะห์และประเมินผลระบบเครือข่ายองค์กร", qty: 1, price: 15000 },
+            { desc: "ติดตั้งชุดประมวลผลเครือข่ายความเร็วสูง (Enterprise Core Engine)", qty: 2, price: 32500 },
+            { desc: "บริการจัดทำโครงร่างข้อมูลด้านเทคนิค", qty: 1, price: 12000 }
+        ],
+        vatRate: 7,
+        whtRate: 3,
+        payment: {
+            method: 'transfer',
+            bankName: "ธนาคารไทยพาณิชย์ (SCB)",
+            accountNo: "123-4-56789-0",
+            accountName: "บริษัท ตัวอย่างการค้า จำกัด",
+            promptPay: "0105565001234",
+            chequeBank: "ธนาคารกสิกรไทย",
+            chequeNo: "10245874",
+            chequeDate: "30 มิถุนายน 2569",
+            cashRef: "CS-2026-001"
+        },
+        notes: [
+            "โปรดตรวจสอบความถูกต้องของรายการและโอนเงินเข้าบัญชีภายในเวลาที่ระบุ",
+            "เอกสารฉบับนี้จัดทำขึ้นโดยระบบอัตโนมัติ ไม่ต้องมีตราประทับ"
+        ]
+    };
+
+    // ============================================================
+    // DB Cache from Google Sheets
+    // ============================================================
+    let dbCustomers = [];   // [{customer_id, company_name, tax_id, address, phone, email}]
+    let dbBanks = [];       // [{bank_id, bank_name, branch, account_no, account_name}]
+    let dbLog = [];         // [{doc_no, doc_type, customer_id, doc_date}]
+
+    // ============================================================
+    // Themes & Doc Types
+    // ============================================================
+    const themeMap = {
+        indigo:  { text:'text-indigo-600', bg:'bg-indigo-600', border:'border-indigo-600', lightBg:'bg-indigo-50/75', borderL:'border-l-indigo-600', badgeText:'text-indigo-900', accentText:'text-indigo-700', accentBorder:'border-indigo-100', gradient:'from-indigo-600 to-indigo-800' },
+        emerald: { text:'text-emerald-600', bg:'bg-emerald-600', border:'border-emerald-600', lightBg:'bg-emerald-50/75', borderL:'border-l-emerald-600', badgeText:'text-emerald-900', accentText:'text-emerald-700', accentBorder:'border-emerald-100', gradient:'from-emerald-600 to-emerald-800' },
+        rose:    { text:'text-rose-600', bg:'bg-rose-600', border:'border-rose-600', lightBg:'bg-rose-50/75', borderL:'border-l-rose-600', badgeText:'text-rose-900', accentText:'text-rose-700', accentBorder:'border-rose-100', gradient:'from-rose-600 to-rose-800' },
+        slate:   { text:'text-slate-800', bg:'bg-slate-800', border:'border-slate-800', lightBg:'bg-slate-100', borderL:'border-l-slate-800', badgeText:'text-slate-900', accentText:'text-slate-800', accentBorder:'border-slate-200', gradient:'from-slate-700 to-slate-950' }
+    };
+    const docTitleMap = {
+        quotation: { th:"ใบเสนอราคา", en:"QUOTATION", prefix:"QT" },
+        invoice:   { th:"ใบแจ้งหนี้", en:"INVOICE", prefix:"IV" },
+        bill:      { th:"ใบเสร็จรับเงิน / บิลเงินสด", en:"RECEIPT / BILL", prefix:"RE" }
+    };
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener("DOMContentLoaded", function () {
+        lucide.createIcons();
+        loadSheetConfigFromStorage();
+        loadStateIntoInputs();
+        renderApplication();
+        detectIframeMode();
+    });
+
+    function detectIframeMode() {
+        try {
+            if (window.self !== window.top) document.getElementById('print-warning-box').classList.remove('hidden');
+            else document.getElementById('print-warning-box').classList.add('hidden');
+        } catch (e) { document.getElementById('print-warning-box').classList.remove('hidden'); }
+    }
+
+    function triggerPrintWithGuard() {
+        try { window.print(); }
+        catch (err) { alert("ระบบเบราว์เซอร์บล็อกการสั่งพิมพ์ กรุณากดปุ่มเปิดพรีวิวเต็มจอที่มุมขวาบนก่อน"); }
+    }
+
+    // ============================================================
+    // SHEET CONFIG
+    // ============================================================
+    function toggleSheetConfig() {
+        const panel = document.getElementById('sheet-config-panel');
+        const btn = document.getElementById('sheet-config-toggle');
+        const hidden = panel.classList.toggle('hidden');
+        btn.textContent = hidden ? 'ตั้งค่า' : 'ซ่อน';
+    }
+
+    function saveSheetConfig() {
+        const id = document.getElementById('input-sheet-id').value;
+        const key = document.getElementById('input-sheet-api-key').value;
+        localStorage.setItem('sheets_id', id);
+        localStorage.setItem('sheets_key', key);
+    }
+
+    function loadSheetConfigFromStorage() {
+        const id = localStorage.getItem('sheets_id') || '';
+        const key = localStorage.getItem('sheets_key') || '';
+        document.getElementById('input-sheet-id').value = id;
+        document.getElementById('input-sheet-api-key').value = key;
+    }
+
+    function getSheetConfig() {
+        return {
+            id: localStorage.getItem('sheets_id') || document.getElementById('input-sheet-id').value,
+            key: localStorage.getItem('sheets_key') || document.getElementById('input-sheet-api-key').value
+        };
+    }
+
+    function setSheetStatus(ok, msg) {
+        const dot = document.getElementById('sheet-status-dot');
+        const txt = document.getElementById('sheet-status-text');
+        dot.className = `w-2 h-2 rounded-full ${ok ? 'bg-emerald-500' : 'bg-rose-500'}`;
+        txt.textContent = msg;
+    }
+
+    // ============================================================
+    // LOAD FROM GOOGLE SHEETS
+    // ============================================================
+    async function fetchSheet(sheetName) {
+        const { id, key } = getSheetConfig();
+        if (!id || !key) throw new Error('กรุณาตั้งค่า Spreadsheet ID และ API Key ก่อน');
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${encodeURIComponent(sheetName)}?key=${key}`;
+        const res = await fetch(url);
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error?.message || `HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        const rows = data.values || [];
+        if (rows.length < 2) return [];
+        const headers = rows[0].map(h => h.trim());
+        return rows.slice(1).map(row => {
+            const obj = {};
+            headers.forEach((h, i) => { obj[h] = row[i] || ''; });
+            return obj;
+        });
+    }
+
+    async function loadFromSheets() {
+        const btn = document.querySelector('#sheet-status-row button');
+        btn.textContent = 'กำลังโหลด...';
+        btn.disabled = true;
+        setSheetStatus(null, 'กำลังเชื่อมต่อ...');
+        try {
+            const [customers, banks, log] = await Promise.all([
+                fetchSheet('Customer'),
+                fetchSheet('BankAccounts'),
+                fetchSheet('Log')
+            ]);
+            dbCustomers = customers;
+            dbBanks = banks;
+            dbLog = log;
+            populateDropdowns();
+            loadLogDisplay();
+            setSheetStatus(true, `โหลดสำเร็จ: ${customers.length} ลูกค้า, ${banks.length} บัญชี, ${log.length} Log`);
+            document.getElementById('log-preview').classList.remove('hidden');
+        } catch (e) {
+            setSheetStatus(false, 'ผิดพลาด: ' + e.message);
+            alert('โหลดข้อมูลไม่ได้: ' + e.message + '\n\nกรุณาตรวจสอบ:\n1. Spreadsheet ID ถูกต้อง\n2. API Key ถูกต้อง\n3. Sheet เป็น Public หรือ Allow API access\n4. มี Sheet ชื่อ Customer, BankAccounts, Log');
+        }
+        btn.textContent = 'โหลดข้อมูล';
+        btn.disabled = false;
+    }
+
+    function populateDropdowns() {
+        // Customer datalist
+        const custList = document.getElementById('list-customers');
+        custList.innerHTML = '';
+        dbCustomers.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.company_name || c['company_name'] || '';
+            opt.setAttribute('data-id', c.customer_id || '');
+            custList.appendChild(opt);
+        });
+
+        // Bank datalist (show "ธนาคาร - สาขา")
+        const bankList = document.getElementById('list-banks');
+        bankList.innerHTML = '';
+        dbBanks.forEach(b => {
+            const opt = document.createElement('option');
+            const label = b.bank_name + (b.branch ? ' สาขา' + b.branch : '');
+            opt.value = label;
+            opt.setAttribute('data-account-no', b.account_no || '');
+            opt.setAttribute('data-account-name', b.account_name || '');
+            bankList.appendChild(opt);
+        });
+    }
+
+    function autofillCustomer(name) {
+        const found = dbCustomers.find(c => (c.company_name || '').toLowerCase() === name.toLowerCase());
+        if (found) {
+            document.getElementById('input-cust-address').value = found.address || '';
+            document.getElementById('input-cust-tax').value = found.tax_id || '';
+            document.getElementById('input-cust-email').value = found.email || '';
+            state.customer.address = found.address || '';
+            state.customer.taxId = found.tax_id || '';
+            state.customer.email = found.email || '';
+            renderApplication();
+        }
+    }
+
+    function autofillBank(value) {
+        const found = dbBanks.find(b => {
+            const label = b.bank_name + (b.branch ? ' สาขา' + b.branch : '');
+            return label.toLowerCase() === value.toLowerCase();
+        });
+        if (found) {
+            document.getElementById('input-pay-no').value = found.account_no || '';
+            document.getElementById('input-pay-name').value = found.account_name || '';
+            state.payment.accountNo = found.account_no || '';
+            state.payment.accountName = found.account_name || '';
+            renderApplication();
+        }
+    }
+
+    function loadLogDisplay() {
+        const list = document.getElementById('log-list');
+        if (!dbLog.length) { list.innerHTML = '<span class="text-slate-500">ยังไม่มีข้อมูล</span>'; return; }
+        const recent = [...dbLog].reverse().slice(0, 8);
+        list.innerHTML = recent.map(l =>
+            `<div class="flex justify-between items-center border-b border-slate-700 pb-0.5">
+                <span class="font-medium text-indigo-300">${l.doc_no || '-'}</span>
+                <span class="text-slate-500">${l.doc_type || ''} | ${l.doc_date || ''}</span>
+            </div>`
+        ).join('');
+    }
+
+    async function loadLogFromSheets() {
+        try {
+            dbLog = await fetchSheet('Log');
+            loadLogDisplay();
+        } catch(e) { alert('โหลด Log ไม่ได้: ' + e.message); }
+    }
+
+    // ============================================================
+    // AUTO GENERATE DOC NO
+    // ============================================================
+    async function autoGenerateDocNo(forceRefresh = false) {
+        const docType = state.docType;
+        const prefix = docTitleMap[docType]?.prefix || 'QT';
+        const now = new Date();
+        // Thai year (BE) last 2 digits → e.g. 2026 CE = 2569 BE → "69" → actually use CE last 2: "26"
+        // Format: QT260001 (prefix + YY + 4-digit running)
+        const yy = String(now.getFullYear()).slice(2); // e.g. "26"
+
+        // Show loading indicator
+        document.getElementById('doc-no-loading').classList.remove('hidden');
+        lucide.createIcons();
+
+        try {
+            // If we have log data (from DB), compute next
+            if (dbLog.length > 0 || forceRefresh) {
+                if (forceRefresh && getSheetConfig().id && getSheetConfig().key) {
+                    dbLog = await fetchSheet('Log');
+                    loadLogDisplay();
+                }
+                const next = computeNextDocNo(prefix, yy, dbLog);
+                state.document.no = next;
+                document.getElementById('input-doc-no').value = next;
+                renderApplication();
+            } else {
+                // Fallback: just set prefix+yy+0001
+                const fallback = `${prefix}${yy}0001`;
+                state.document.no = fallback;
+                document.getElementById('input-doc-no').value = fallback;
+                renderApplication();
+            }
+        } catch(e) {
+            console.warn('autoGenerateDocNo error:', e);
+        }
+        document.getElementById('doc-no-loading').classList.add('hidden');
+    }
+
+    function computeNextDocNo(prefix, yy, logRows) {
+        // Filter rows matching this prefix and year
+        const pattern = new RegExp(`^${prefix}${yy}(\\d{4})$`, 'i');
+        let maxNum = 0;
+        logRows.forEach(row => {
+            const no = (row.doc_no || '').trim();
+            const match = no.match(pattern);
+            if (match) {
+                const num = parseInt(match[1], 10);
+                if (num > maxNum) maxNum = num;
+            }
+        });
+        const next = String(maxNum + 1).padStart(4, '0');
+        return `${prefix}${yy}${next}`;
+    }
+
+    // ============================================================
+    // SAVE DOC_NO TO SHEETS (via Apps Script Web App)
+    // ============================================================
+    function openSaveModal() {
+        const docNo = state.document.no;
+        if (!docNo) { alert('กรุณากรอกเลขที่เอกสารก่อน'); return; }
+        document.getElementById('modal-doc-no').textContent = docNo;
+        document.getElementById('modal-doc-type').textContent = docTitleMap[state.docType]?.th || state.docType;
+
+        // Pre-fill customer_id if found in DB
+        const custName = state.customer.name;
+        const found = dbCustomers.find(c => (c.company_name || '') === custName);
+        document.getElementById('modal-customer-id').value = found ? (found.customer_id || '') : '';
+
+        // Pre-fill date (today ISO)
+        const today = new Date();
+        const iso = today.toISOString().split('T')[0];
+        document.getElementById('modal-doc-date').value = iso;
+
+        document.getElementById('modal-status').classList.add('hidden');
+        document.getElementById('saveDocModal').classList.add('show');
+    }
+
+    function closeSaveModal() {
+        document.getElementById('saveDocModal').classList.remove('show');
+    }
+
+    async function saveDocToSheet() {
+        const docNo = state.document.no;
+        const docType = docTitleMap[state.docType]?.en || state.docType;
+        const custId = document.getElementById('modal-customer-id').value.trim();
+        const docDate = document.getElementById('modal-doc-date').value;
+
+        if (!docNo || !docDate) { showModalStatus('กรุณากรอกข้อมูลให้ครบ', false); return; }
+
+        // Check duplicate in local cache
+        const isDup = dbLog.some(r => (r.doc_no || '').trim().toLowerCase() === docNo.toLowerCase());
+        if (isDup) {
+            showModalStatus(`⚠️ ${docNo} มีอยู่ใน Log แล้ว`, false);
+            return;
+        }
+
+        const { id: sheetId, key } = getSheetConfig();
+
+        // Method 1: Apps Script Web App (POST) — requires user to deploy Apps Script
+        const appsScriptUrl = localStorage.getItem('apps_script_url') || '';
+
+        if (!appsScriptUrl) {
+            // Fallback: show instructions + update local cache
+            dbLog.push({ doc_no: docNo, doc_type: docType, customer_id: custId, doc_date: docDate });
+            loadLogDisplay();
+            showModalStatus(`✅ บันทึกในระบบแล้ว (Local)\n\nหากต้องการบันทึกลง Google Sheets จริง กรุณาตั้งค่า Apps Script URL ในการตั้งค่า`, true);
+            promptAppsScriptSetup();
+            return;
+        }
+
+        const btn = document.getElementById('modal-save-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 spin inline"></i> กำลังบันทึก...';
+        lucide.createIcons();
+
+        try {
+            const payload = { doc_no: docNo, doc_type: docType, customer_id: custId, doc_date: docDate };
+            const res = await fetch(appsScriptUrl, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: { 'Content-Type': 'text/plain' } // Apps Script needs this
+            });
+            const text = await res.text();
+            if (text.includes('OK') || text.includes('success')) {
+                dbLog.push(payload);
+                loadLogDisplay();
+                showModalStatus('✅ บันทึกลง Google Sheets สำเร็จ!', true);
+                setTimeout(() => closeSaveModal(), 1800);
+            } else {
+                showModalStatus('❌ Apps Script ตอบกลับ: ' + text, false);
+            }
+        } catch(e) {
+            showModalStatus('❌ บันทึกไม่สำเร็จ: ' + e.message, false);
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> บันทึก Log';
+        lucide.createIcons();
+    }
+
+    function showModalStatus(msg, ok) {
+        const el = document.getElementById('modal-status');
+        el.textContent = msg;
+        el.className = `text-xs mb-3 whitespace-pre-line ${ok ? 'text-emerald-400' : 'text-rose-400'}`;
+        el.classList.remove('hidden');
+    }
+
+    function promptAppsScriptSetup() {
+        const url = prompt(
+            'เพื่อบันทึกลง Google Sheets จริง กรุณาติดตั้ง Apps Script:\n\n' +
+            '1. เปิด Google Sheets → Extensions → Apps Script\n' +
+            '2. วางโค้ดด้านล่างนี้:\n\n' +
+            'function doPost(e){\n' +
+            '  var d=JSON.parse(e.postData.contents);\n' +
+            '  var sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Log");\n' +
+            '  sh.appendRow([d.doc_no,d.doc_type,d.customer_id,d.doc_date]);\n' +
+            '  return ContentService.createTextOutput("OK");\n' +
+            '}\n\n' +
+            '3. Deploy → New Deployment → Web App → Anyone\n' +
+            '4. วาง Web App URL ด้านล่าง:',
+            localStorage.getItem('apps_script_url') || ''
+        );
+        if (url && url.includes('script.google.com')) {
+            localStorage.setItem('apps_script_url', url);
+            // Also show in config area
+            showAppsScriptInput(url);
+        }
+    }
+
+    function showAppsScriptInput(currentVal) {
+        // Dynamically add Apps Script URL field to config if not exists
+        if (!document.getElementById('input-apps-script-url')) {
+            const panel = document.getElementById('sheet-config-panel');
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <label class="text-[10px] text-slate-400 block mb-1">Apps Script Web App URL (สำหรับบันทึก Log)</label>
+                <input type="text" id="input-apps-script-url" placeholder="https://script.google.com/macros/s/.../exec"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white focus:ring-1 focus:ring-indigo-500 outline-none"
+                    oninput="localStorage.setItem('apps_script_url', this.value)">
+            `;
+            panel.appendChild(div);
+            document.getElementById('sheet-config-panel').classList.remove('hidden');
+            document.getElementById('sheet-config-toggle').textContent = 'ซ่อน';
+        }
+        if (currentVal) document.getElementById('input-apps-script-url').value = currentVal;
+    }
+
+    // ============================================================
+    // STATE HELPERS
+    // ============================================================
+    function loadStateIntoInputs() {
+        document.getElementById('input-doc-type').value = state.docType;
+        document.getElementById('input-theme').value = state.theme;
+        document.getElementById('input-co-name').value = state.company.name;
+        document.getElementById('input-co-address').value = state.company.address;
+        document.getElementById('input-co-tax').value = state.company.taxId;
+        document.getElementById('input-co-phone').value = state.company.phone;
+        document.getElementById('input-doc-no').value = state.document.no;
+        document.getElementById('input-doc-date').value = state.document.date;
+        document.getElementById('input-doc-due').value = state.document.dueDate;
+        document.getElementById('input-doc-sales').value = state.document.salesPerson;
+        document.getElementById('input-cust-name').value = state.customer.name;
+        document.getElementById('input-cust-address').value = state.customer.address;
+        document.getElementById('input-cust-tax').value = state.customer.taxId;
+        document.getElementById('input-cust-contact').value = state.customer.contact;
+        document.getElementById('input-cust-email').value = state.customer.email;
+        document.getElementById('input-pay-method').value = state.payment.method;
+        document.getElementById('input-pay-bank').value = state.payment.bankName;
+        document.getElementById('input-pay-no').value = state.payment.accountNo;
+        document.getElementById('input-pay-name').value = state.payment.accountName;
+        document.getElementById('input-pay-pp').value = state.payment.promptPay;
+        document.getElementById('input-cheque-bank').value = state.payment.chequeBank || '';
+        document.getElementById('input-cheque-no').value = state.payment.chequeNo || '';
+        document.getElementById('input-cheque-date').value = state.payment.chequeDate || '';
+        document.getElementById('input-payee-name').value = state.payment.accountName;
+        document.getElementById('input-cash-ref').value = state.payment.cashRef || '';
+        togglePaymentMethodInputs(state.payment.method);
+        document.getElementById('input-vat-rate').value = state.vatRate;
+        document.getElementById('input-wht-rate').value = state.whtRate;
+        document.getElementById('input-note-1').value = state.notes[0] || '';
+        document.getElementById('input-note-2').value = state.notes[1] || '';
+        // Restore apps script url in UI if exists
+        const savedUrl = localStorage.getItem('apps_script_url');
+        if (savedUrl) showAppsScriptInput(savedUrl);
+    }
+
+    function togglePaymentMethodInputs(method) {
+        document.getElementById('bank-fields-container').classList.toggle('hidden', method !== 'transfer');
+        document.getElementById('cheque-fields-container').classList.toggle('hidden', method !== 'cheque');
+        document.getElementById('cash-fields-container').classList.toggle('hidden', method !== 'cash');
+    }
+
+    function updatePaymentMethod(method) {
+        updateNestedState('payment', 'method', method);
+        togglePaymentMethodInputs(method);
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.getElementById(tabId).classList.remove('hidden');
+        document.querySelectorAll('[id^="btn-tab-"]').forEach(btn => {
+            btn.classList.remove('bg-indigo-600', 'text-white');
+            btn.classList.add('text-slate-400');
+        });
+        document.getElementById('btn-' + tabId).classList.add('bg-indigo-600', 'text-white');
+        document.getElementById('btn-' + tabId).classList.remove('text-slate-400');
+    }
+
+    function updateState(key, val) { state[key] = val; renderApplication(); }
+    function updateNestedState(nestedKey, key, val) {
+        state[nestedKey][key] = val;
+        if (nestedKey === 'payment' && key === 'accountName') {
+            document.getElementById('input-payee-name').value = val;
+            document.getElementById('input-pay-name').value = val;
+        }
+        renderApplication();
+    }
+    function updateArrayState(arrayKey, index, val) { state[arrayKey][index] = val; renderApplication(); }
+    function addStateItem() { state.items.push({ desc: "รายละเอียดสินค้าหรือบริการเพิ่มเติม", qty: 1, price: 0 }); renderApplication(); renderItemsTabEditor(); }
+    function deleteStateItem(index) { state.items.splice(index, 1); renderApplication(); renderItemsTabEditor(); }
+    function updateStateItemValue(index, field, value) {
+        if (field === 'qty') state.items[index][field] = parseInt(value) || 0;
+        else if (field === 'price') state.items[index][field] = parseFloat(value) || 0;
+        else state.items[index][field] = value;
+        renderApplication();
+    }
+
+    function formatMoney(amount) { return amount.toLocaleString('th-TH', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+
+    function arabToBahtText(num) {
+        let number = num.toFixed(2);
+        let [integerPart, decimalPart] = number.split('.');
+        let bahtText = "";
+        const thaiNumbers = ["ศูนย์","หนึ่ง","สอง","สาม","สี่","ห้า","หก","เจ็ด","แปด","เก้า"];
+        const thaiUnits = ["","สิบ","ร้อย","พัน","หมื่น","แสน","ล้าน"];
+        if (parseFloat(number) === 0) return "ศูนย์บาทถ้วน";
+        let len = integerPart.length;
+        for (let i = 0; i < len; i++) {
+            let digit = parseInt(integerPart.charAt(i));
+            let position = len - 1 - i;
+            if (position > 0 && position % 6 === 0 && digit === 0) { if (integerPart.length > 7 && integerPart.substring(i-5,i+1) !== "000000") bahtText += "ล้าน"; continue; }
+            let unitPos = position % 6;
+            if (digit !== 0) {
+                if (unitPos === 1 && digit === 1) bahtText += "สิบ";
+                else if (unitPos === 1 && digit === 2) bahtText += "ยี่สิบ";
+                else if (unitPos === 0 && digit === 1 && len > 1 && i > 0 && (integerPart.charAt(i-1) !== '0' || len > 7)) bahtText += "เอ็ด";
+                else bahtText += thaiNumbers[digit];
+                bahtText += thaiUnits[unitPos];
+            }
+            if (position > 0 && position % 6 === 0 && i > 0) bahtText += "ล้าน";
+        }
+        if (integerPart !== "0" && integerPart !== "") bahtText += "บาท";
+        if (decimalPart === "00" || decimalPart === undefined) { bahtText += "ถ้วน"; }
+        else {
+            let decLen = decimalPart.length;
+            for (let i = 0; i < decLen; i++) {
+                let digit = parseInt(decimalPart.charAt(i));
+                let position = decLen - 1 - i;
+                if (digit !== 0) {
+                    if (position === 0 && digit === 1 && decimalPart.charAt(0) !== '0') bahtText += "เอ็ด";
+                    else if (position === 1 && digit === 1) bahtText += "สิบ";
+                    else if (position === 1 && digit === 2) bahtText += "ยี่สิบ";
+                    else bahtText += thaiNumbers[digit];
+                    if (position === 1) bahtText += "สิบ";
+                }
+            }
+            bahtText += "สตางค์";
+        }
+        return bahtText;
+    }
+
+    // ============================================================
+    // ITEMS EDITOR
+    // ============================================================
+    function renderItemsTabEditor() {
+        const container = document.getElementById('editor-items-container');
+        document.getElementById('items-count').innerText = `${state.items.length} รายการ`;
+        container.innerHTML = '';
+        state.items.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'bg-slate-800 p-3 rounded-lg border border-slate-700 space-y-2';
+            div.innerHTML = `
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-bold text-indigo-400 bg-slate-900 px-2 py-0.5 rounded">ลำดับ #${index + 1}</span>
+                    <button onclick="deleteStateItem(${index})" class="text-rose-500 hover:text-rose-400 p-0.5 transition" title="ลบรายการนี้">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div>
+                    <input type="text" value="${item.desc}" oninput="updateStateItemValue(${index}, 'desc', this.value)" placeholder="รายละเอียดสินค้า/บริการ" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <input type="text" value="${item.desc}" oninput="updateStateItemValue(${index}, 'desc', this.value)" placeholder="รายละเอียดสินค้า/บริการ" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <label class="block text-[10px] text-slate-400 mb-0.5">จำนวน</label>
+                        <input type="number" min="1" value="${item.qty}" oninput="updateStateItemValue(${index}, 'qty', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white text-center focus:outline-none focus:ring-1 focus:ring-indigo-500">
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[10px] text-slate-400 mb-0.5">จำนวน</label>
-                            <input type="number" min="1" value="${item.qty}" oninput="updateStateItemValue(${index}, 'qty', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white text-center focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-400 mb-0.5">ราคาต่อหน่วย</label>
-                            <input type="number" step="0.01" value="${item.price}" oninput="updateStateItemValue(${index}, 'price', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white text-right focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                        </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-400 mb-0.5">ราคาต่อหน่วย</label>
+                        <input type="number" step="0.01" value="${item.price}" oninput="updateStateItemValue(${index}, 'price', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white text-right focus:outline-none focus:ring-1 focus:ring-indigo-500">
                     </div>
-                `;
-                container.appendChild(div);
-            });
-            lucide.createIcons();
+                </div>
+            `;
+            container.appendChild(div);
+        });
+        lucide.createIcons();
+    }
+
+    // ============================================================
+    // A4 RENDER ENGINE
+    // ============================================================
+    function renderApplication() {
+        if (document.getElementById('editor-items-container').children.length !== state.items.length) {
+            renderItemsTabEditor();
         }
+        const previewContainer = document.getElementById('previewContainer');
+        previewContainer.innerHTML = '';
 
-        // Dynamic multi-page rendering engine for perfect A4 templates
-        function renderApplication() {
-            if (document.getElementById('editor-items-container').children.length !== state.items.length) {
-                renderItemsTabEditor();
-            }
+        let subtotal = 0;
+        state.items.forEach(item => { subtotal += item.qty * item.price; });
+        const vatAmount = subtotal * (state.vatRate / 100);
+        const whtAmount = subtotal * (state.whtRate / 100);
+        const netTotal = subtotal + vatAmount - whtAmount;
 
-            const previewContainer = document.getElementById('previewContainer');
-            previewContainer.innerHTML = '';
+        const ITEMS_PER_PAGE = 8;
+        const totalPages = Math.ceil(state.items.length / ITEMS_PER_PAGE) || 1;
+        const activeTheme = themeMap[state.theme] || themeMap.indigo;
+        const activeDoc = docTitleMap[state.docType] || docTitleMap.quotation;
 
-            // Calculating aggregate values
-            let subtotal = 0;
-            state.items.forEach(item => {
-                subtotal += item.qty * item.price;
-            });
+        for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
+            const pageItems = state.items.slice(pageIdx * ITEMS_PER_PAGE, (pageIdx + 1) * ITEMS_PER_PAGE);
+            const isFirstPage = pageIdx === 0;
+            const isLastPage = pageIdx === totalPages - 1;
+            const sheet = document.createElement('div');
+            sheet.className = 'a4-page';
 
-            const vatAmount = subtotal * (state.vatRate / 100);
-            const whtAmount = subtotal * (state.whtRate / 100);
-            const netTotal = subtotal + vatAmount - whtAmount;
-
-            // Grouping Items for max 8 items per page
-            const ITEMS_PER_PAGE = 8;
-            const totalPages = Math.ceil(state.items.length / ITEMS_PER_PAGE) || 1;
-            const activeTheme = themeMap[state.theme] || themeMap.indigo;
-            const activeDoc = docTitleMap[state.docType] || docTitleMap.quotation;
-
-            for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
-                const pageItems = state.items.slice(pageIdx * ITEMS_PER_PAGE, (pageIdx + 1) * ITEMS_PER_PAGE);
-                const isFirstPage = pageIdx === 0;
-                const isLastPage = pageIdx === totalPages - 1;
-
-                // Creating the A4 sheet page
-                const sheet = document.createElement('div');
-                sheet.className = 'a4-page';
-
-                // --- HEADER RENDER ---
-                let headerHtml = '';
-                if (isFirstPage) {
-                    headerHtml = `
-                        <!-- Full Primary Header on Page 1 -->
-                        <div class="flex justify-between items-start gap-4 mb-5 border-b pb-4 border-slate-100">
-                            <div class="max-w-[60%]">
-                                <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2 mb-1">
-                                    <span class="w-3.5 h-6 rounded ${activeTheme.bg}"></span>
-                                    ${state.company.name || 'ชื่อบริษัทหรือแบรนด์ของคุณ'}
-                                </h2>
-                                <p class="text-[11px] text-slate-500 leading-relaxed whitespace-pre-line">${state.company.address || '-'}</p>
-                                <div class="mt-2 text-[10px] text-slate-600 space-y-0.5">
-                                    <p><span class="font-bold">เลขประจำตัวผู้เสียภาษี:</span> ${state.company.taxId || '-'}</p>
-                                    <p><span class="font-bold">เบอร์โทรศัพท์:</span> ${state.company.phone || '-'}</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="inline-block ${activeTheme.lightBg} ${activeTheme.text} font-black text-sm px-4 py-1.5 rounded-lg mb-1.5 tracking-wider">
-                                    ${activeDoc.en}
-                                </div>
-                                <h1 class="text-2xl font-extrabold text-slate-900 leading-tight">${activeDoc.th}</h1>
-                                <p class="text-[10px] text-slate-400 font-medium">หน้า ${pageIdx + 1} จากทั้งหมด ${totalPages}</p>
+            let headerHtml = '';
+            if (isFirstPage) {
+                headerHtml = `
+                    <div class="flex justify-between items-start gap-4 mb-5 border-b pb-4 border-slate-100">
+                        <div class="max-w-[60%]">
+                            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2 mb-1">
+                                <span class="w-3.5 h-6 rounded ${activeTheme.bg}"></span>
+                                ${state.company.name || 'ชื่อบริษัทหรือแบรนด์ของคุณ'}
+                            </h2>
+                            <p class="text-[11px] text-slate-500 leading-relaxed whitespace-pre-line">${state.company.address || '-'}</p>
+                            <div class="mt-2 text-[10px] text-slate-600 space-y-0.5">
+                                <p><span class="font-bold">เลขประจำตัวผู้เสียภาษี:</span> ${state.company.taxId || '-'}</p>
+                                <p><span class="font-bold">เบอร์โทรศัพท์:</span> ${state.company.phone || '-'}</p>
                             </div>
                         </div>
-
-                        <!-- Info Metadata Block (Customer & Doc metadata) -->
-                        <div class="grid grid-cols-12 gap-4 text-[11px] mb-5">
-                            <!-- Customer Details Column -->
-                            <div class="col-span-7 bg-slate-50/50 rounded-xl p-3 border border-slate-100 flex flex-col justify-between">
-                                <div>
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ผู้ติดต่อ / ลูกค้า</span>
-                                    <h4 class="font-bold text-[12px] text-slate-800 mb-1">${state.customer.name || '-'}</h4>
-                                    <p class="text-slate-500 leading-relaxed max-h-[44px] overflow-hidden whitespace-pre-line">${state.customer.address || '-'}</p>
-                                </div>
-                                <div class="mt-2 pt-2 border-t border-slate-100 grid grid-cols-2 gap-1 text-[10px] text-slate-600">
-                                    <p><span class="font-semibold text-slate-400">เลขผู้เสียภาษี:</span> ${state.customer.taxId || '-'}</p>
-                                    <p><span class="font-semibold text-slate-400">ผู้ติดต่อ:</span> ${state.customer.contact || '-'}</p>
-                                    <p class="col-span-2"><span class="font-semibold text-slate-400">อีเมล:</span> ${state.customer.email || '-'}</p>
-                                </div>
-                            </div>
-
-                            <!-- Document Meta Column -->
-                            <div class="col-span-5 bg-slate-50/50 rounded-xl p-3 border border-slate-100 grid grid-cols-2 gap-y-2 gap-x-1.5 content-center">
-                                <div>
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">เลขที่เอกสาร</span>
-                                    <span class="font-bold text-slate-800 text-[11px]">${state.document.no || '-'}</span>
-                                </div>
-                                <div>
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">วันที่ออก</span>
-                                    <span class="font-bold text-slate-800 text-[11px]">${state.document.date || '-'}</span>
-                                </div>
-                                <div>
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">วันกำหนดชำระ</span>
-                                    <span class="font-bold text-slate-800 text-[11px] ${activeTheme.text}">${state.document.dueDate || '-'}</span>
-                                </div>
-                                <div>
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">ผู้จัดทำ</span>
-                                    <span class="font-bold text-slate-800 text-[11px]">${state.document.salesPerson || '-'}</span>
-                                </div>
-                            </div>
+                        <div class="text-right">
+                            <div class="inline-block ${activeTheme.lightBg} ${activeTheme.text} font-black text-sm px-4 py-1.5 rounded-lg mb-1.5 tracking-wider">${activeDoc.en}</div>
+                            <h1 class="text-2xl font-extrabold text-slate-900 leading-tight">${activeDoc.th}</h1>
+                            <p class="text-[10px] text-slate-400 font-medium">หน้า ${pageIdx + 1} จากทั้งหมด ${totalPages}</p>
                         </div>
-                    `;
-                } else {
-                    // Minified short header on subsequent pages
-                    headerHtml = `
-                        <div class="flex justify-between items-center border-b pb-2 border-slate-100 mb-4">
+                    </div>
+                    <div class="grid grid-cols-12 gap-4 text-[11px] mb-5">
+                        <div class="col-span-7 bg-slate-50/50 rounded-xl p-3 border border-slate-100 flex flex-col justify-between">
                             <div>
-                                <h2 class="text-[12px] font-bold text-slate-700">${state.company.name}</h2>
-                                <p class="text-[9px] text-slate-400">เลขที่เอกสาร: ${state.document.no || '-'} | วันที่: ${state.document.date || '-'}</p>
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ผู้ติดต่อ / ลูกค้า</span>
+                                <h4 class="font-bold text-[12px] text-slate-800 mb-1">${state.customer.name || '-'}</h4>
+                                <p class="text-slate-500 leading-relaxed max-h-[44px] overflow-hidden whitespace-pre-line">${state.customer.address || '-'}</p>
                             </div>
-                            <div class="text-right">
-                                <h1 class="text-[11px] font-bold text-slate-800">${activeDoc.th} (${activeDoc.en})</h1>
-                                <p class="text-[9px] text-slate-400">หน้า ${pageIdx + 1} จากทั้งหมด ${totalPages}</p>
+                            <div class="mt-2 pt-2 border-t border-slate-100 grid grid-cols-2 gap-1 text-[10px] text-slate-600">
+                                <p><span class="font-semibold text-slate-400">เลขผู้เสียภาษี:</span> ${state.customer.taxId || '-'}</p>
+                                <p><span class="font-semibold text-slate-400">ผู้ติดต่อ:</span> ${state.customer.contact || '-'}</p>
+                                <p class="col-span-2"><span class="font-semibold text-slate-400">อีเมล:</span> ${state.customer.email || '-'}</p>
                             </div>
                         </div>
-                    `;
-                }
-
-                // --- ITEMS TABLE BODY ---
-                let tableRowsHtml = '';
-                // Calculate item sequence offset
-                for (let i = 0; i < ITEMS_PER_PAGE; i++) {
-                    const itemIndex = pageIdx * ITEMS_PER_PAGE + i;
-                    const item = state.items[itemIndex];
-                    
-                    if (item) {
-                        const total = item.qty * item.price;
-                        tableRowsHtml += `
-                            <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition">
-                                <td class="py-2.5 px-3 text-center text-slate-500 font-medium">${itemIndex + 1}</td>
-                                <td class="py-2.5 px-2 text-slate-800 font-medium text-[11px] leading-normal break-words max-w-[340px]">${item.desc || '-'}</td>
-                                <td class="py-2.5 px-3 text-center text-slate-700 font-bold">${item.qty}</td>
-                                <td class="py-2.5 px-3 text-right text-slate-700">${formatMoney(item.price)}</td>
-                                <td class="py-2.5 px-3 text-right text-slate-900 font-bold">${formatMoney(total)}</td>
-                            </tr>
-                        `;
-                    } else {
-                        // Empty spacer rows to hold perfect structure
-                        tableRowsHtml += `
-                            <tr class="border-b border-slate-50 last:border-0 h-[38px]">
-                                <td class="py-2.5 px-3 text-center text-slate-300">-</td>
-                                <td class="py-2.5 px-2 text-slate-300">-</td>
-                                <td class="py-2.5 px-3 text-center text-slate-300">-</td>
-                                <td class="py-2.5 px-3 text-slate-300">-</td>
-                                <td class="py-2.5 px-3 text-slate-300">-</td>
-                            </tr>
-                        `;
-                    }
-                }
-
-                const tableHtml = `
-                    <div class="flex-grow">
-                        <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm bg-white">
-                            <table class="w-full table-fixed border-collapse">
-                                <thead class="${activeTheme.bg} text-white text-[10px] uppercase font-bold tracking-wider">
-                                    <tr>
-                                        <th class="w-[8%] py-3 px-3 text-center rounded-tl-xl">ลำดับ</th>
-                                        <th class="w-[52%] py-3 px-2 text-left">รายละเอียดสินค้า / บริการ</th>
-                                        <th class="w-[10%] py-3 px-3 text-center">จำนวน</th>
-                                        <th class="w-[14%] py-3 px-3 text-right">ราคาต่อหน่วย</th>
-                                        <th class="w-[16%] py-3 px-3 text-right rounded-tr-xl">ยอดรวม (บาท)</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-[11px] text-slate-600 divide-y divide-slate-100">
-                                    ${tableRowsHtml}
-                                </tbody>
-                            </table>
+                        <div class="col-span-5 bg-slate-50/50 rounded-xl p-3 border border-slate-100 grid grid-cols-2 gap-y-2 gap-x-1.5 content-center">
+                            <div><span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">เลขที่เอกสาร</span><span class="font-bold text-slate-800 text-[11px]">${state.document.no || '-'}</span></div>
+                            <div><span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">วันที่ออก</span><span class="font-bold text-slate-800 text-[11px]">${state.document.date || '-'}</span></div>
+                            <div><span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">วันกำหนดชำระ</span><span class="font-bold text-slate-800 text-[11px] ${activeTheme.text}">${state.document.dueDate || '-'}</span></div>
+                            <div><span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">ผู้จัดทำ</span><span class="font-bold text-slate-800 text-[11px]">${state.document.salesPerson || '-'}</span></div>
                         </div>
                     </div>
                 `;
-
-                // --- FOOTER AND PAYMENT DETAILS (ONLY ON LAST PAGE) ---
-                let footerHtml = '';
-                if (isLastPage) {
-                    // Render dynamic payment methods info on PDF template
-                    let paymentPrintDetailsHtml = '';
-                    if (state.payment.method === 'cheque') {
-                        paymentPrintDetailsHtml = `
-                            <p class="col-span-2"><span class="font-medium text-slate-400">ชำระด้วย:</span> เช็คธนาคาร</p>
-                            <p class="col-span-2"><span class="font-medium text-slate-400">ธนาคารเจ้าของเช็ค:</span> ${state.payment.chequeBank || '-'}</p>
-                            <p><span class="font-medium text-slate-400">เลขที่เช็ค:</span> <strong class="text-slate-800 font-bold">${state.payment.chequeNo || '-'}</strong></p>
-                            <p><span class="font-medium text-slate-400">ลงวันที่:</span> ${state.payment.chequeDate || '-'}</p>
-                            <p class="col-span-2"><span class="font-medium text-slate-400">สั่งจ่ายในนาม:</span> <strong class="text-slate-800 font-semibold">${state.payment.accountName || '-'}</strong></p>
-                        `;
-                    } else if (state.payment.method === 'cash') {
-                        paymentPrintDetailsHtml = `
-                            <p class="col-span-2"><span class="font-medium text-slate-400">วิธีการชำระเงิน:</span> <strong class="text-slate-800 font-bold">เงินสด (Cash)</strong></p>
-                            ${state.payment.cashRef ? `<p class="col-span-2"><span class="font-medium text-slate-400">หมายเลขการชำระ:</span> <strong class="text-slate-800 font-bold">${state.payment.cashRef}</strong></p>` : ''}
-                            <p class="col-span-2 text-slate-500 text-[9px] leading-snug">ชำระด้วยเงินสดเต็มจำนวนเรียบร้อยแล้ว ณ วันที่ส่งมอบสินค้า/บริการ</p>
-                        `;
-                    } else {
-                        paymentPrintDetailsHtml = `
-                            <p><span class="font-medium text-slate-400">ธนาคาร:</span> ${state.payment.bankName || '-'}</p>
-                            <p><span class="font-medium text-slate-400">เลขบัญชี:</span> <strong class="text-slate-800 font-bold">${state.payment.accountNo || '-'}</strong></p>
-                            <p class="col-span-2"><span class="font-medium text-slate-400">ชื่อบัญชี:</span> ${state.payment.accountName || '-'}</p>
-                            ${state.payment.promptPay ? `<p class="col-span-2"><span class="font-medium text-slate-400">พร้อมเพย์:</span> ${state.payment.promptPay}</p>` : ''}
-                        `;
-                    }
-
-                    footerHtml = `
-                        <!-- Totals & Payment Section on Last Page -->
-                        <div class="mt-4 pt-3 border-t border-slate-100">
-                            <!-- Baht Text Label Ribbon -->
-                            <div class="w-full ${activeTheme.lightBg} border-l-4 ${activeTheme.borderL} py-2 px-3 rounded-r-lg mb-3 flex items-center justify-between">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase">จำนวนเงินอักษร:</span>
-                                <span class="text-[11px] font-extrabold ${activeTheme.accentText}">${arabToBahtText(netTotal)}</span>
-                            </div>
-
-                            <div class="grid grid-cols-12 gap-4 text-[10px]">
-                                <!-- Payment Method & Bank info -->
-                                <div class="col-span-7 bg-slate-50/70 p-3 rounded-xl border border-slate-100/80 flex flex-col justify-between">
-                                    <div>
-                                        <h5 class="font-extrabold text-slate-800 text-[11px] mb-1.5 flex items-center gap-1.5">
-                                            <span class="w-1.5 h-3 rounded-sm ${activeTheme.bg}"></span>
-                                            ข้อมูลการรับชำระเงิน (Payment)
-                                        </h5>
-                                        <div class="grid grid-cols-2 gap-y-1 gap-x-2 text-slate-600 text-[10.5px]">
-                                            ${paymentPrintDetailsHtml}
-                                        </div>
-                                    </div>
-                                    <div class="mt-2.5 pt-2 border-t border-slate-100 text-[9px] text-slate-400 leading-tight space-y-0.5">
-                                        <p><strong class="font-bold">หมายเหตุ:</strong> ${state.notes[0] || '-'}</p>
-                                        ${state.notes[1] ? `<p>${state.notes[1]}</p>` : ''}
-                                    </div>
-                                </div>
-
-                                <!-- Standard Calculation Totals Block -->
-                                <div class="col-span-5 bg-slate-50/70 p-3 rounded-xl border border-slate-100/80 space-y-1.5">
-                                    <div class="flex justify-between items-center text-slate-500">
-                                        <span>รวมเป็นเงิน (Subtotal):</span>
-                                        <span class="font-semibold text-slate-800">${formatMoney(subtotal)}</span>
-                                    </div>
-                                    <div class="flex justify-between items-center text-slate-500">
-                                        <span>ภาษีมูลค่าเพิ่ม VAT (${state.vatRate}%):</span>
-                                        <span class="font-semibold text-slate-800">${formatMoney(vatAmount)}</span>
-                                    </div>
-                                    <div class="flex justify-between items-center text-slate-500 pb-1.5 border-b border-slate-100">
-                                        <span>หักภาษี ณ ที่จ่าย WHT (${state.whtRate}%):</span>
-                                        <span class="font-semibold text-slate-800">${formatMoney(whtAmount)}</span>
-                                    </div>
-                                    <div class="flex justify-between items-center pt-1">
-                                        <span class="font-extrabold text-slate-800 text-[11px]">ยอดชำระสุทธิ (Net Total):</span>
-                                        <span class="text-sm font-black ${activeTheme.text}">${formatMoney(netTotal)}</span>
-                                    </div>
-                                </div>
-                            </div>
+            } else {
+                headerHtml = `
+                    <div class="flex justify-between items-center border-b pb-2 border-slate-100 mb-4">
+                        <div>
+                            <h2 class="text-[12px] font-bold text-slate-700">${state.company.name}</h2>
+                            <p class="text-[9px] text-slate-400">เลขที่เอกสาร: ${state.document.no || '-'} | วันที่: ${state.document.date || '-'}</p>
                         </div>
-
-                        <!-- Formal Signature Fields -->
-                        <div class="mt-6 grid grid-cols-2 gap-8 text-[10px] text-center">
-                            <div class="flex flex-col justify-end h-16">
-                                <p class="text-slate-400 mb-5">ลงชื่อผู้เสนอราคา / ผู้รับเงิน</p>
-                                <div class="border-b border-dashed border-slate-300 w-48 mx-auto"></div>
-                                <p class="mt-1.5 font-semibold text-slate-700">( ${state.document.salesPerson || 'ผู้จัดทำ'} )</p>
-                            </div>
-                            <div class="flex flex-col justify-end h-16">
-                                <p class="text-slate-400 mb-5">ลงชื่อผู้อนุมัติ / ผู้ซื้อสินค้า</p>
-                                <div class="border-b border-dashed border-slate-300 w-48 mx-auto"></div>
-                                <p class="mt-1.5 font-semibold text-slate-700">( ...................................................... )</p>
-                            </div>
+                        <div class="text-right">
+                            <h1 class="text-[11px] font-bold text-slate-800">${activeDoc.th} (${activeDoc.en})</h1>
+                            <p class="text-[9px] text-slate-400">หน้า ${pageIdx + 1} จากทั้งหมด ${totalPages}</p>
                         </div>
+                    </div>
+                `;
+            }
+
+            let tableRowsHtml = '';
+            for (let i = 0; i < ITEMS_PER_PAGE; i++) {
+                const itemIndex = pageIdx * ITEMS_PER_PAGE + i;
+                const item = state.items[itemIndex];
+                if (item) {
+                    const total = item.qty * item.price;
+                    tableRowsHtml += `
+                        <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition">
+                            <td class="py-2.5 px-3 text-center text-slate-500 font-medium">${itemIndex + 1}</td>
+                            <td class="py-2.5 px-2 text-slate-800 font-medium text-[11px] leading-normal break-words max-w-[340px]">${item.desc || '-'}</td>
+                            <td class="py-2.5 px-3 text-center text-slate-700 font-bold">${item.qty}</td>
+                            <td class="py-2.5 px-3 text-right text-slate-700">${formatMoney(item.price)}</td>
+                            <td class="py-2.5 px-3 text-right text-slate-900 font-bold">${formatMoney(total)}</td>
+                        </tr>
                     `;
                 } else {
-                    footerHtml = `
-                        <!-- Mini Footer for intermediate pages -->
-                        <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400">
-                            <p>โปรดตรวจสอบรายการชำระเงินและดูรายละเอียดสรุปในหน้าสุดท้าย</p>
-                            <p>ยอดรวมยกยอดไปหน้าถัดไป: <strong class="text-slate-700">${formatMoney(subtotal)} บาท</strong></p>
-                        </div>
+                    tableRowsHtml += `
+                        <tr class="border-b border-slate-50 last:border-0 h-[38px]">
+                            <td class="py-2.5 px-3 text-center text-slate-300">-</td>
+                            <td class="py-2.5 px-2 text-slate-300">-</td>
+                            <td class="py-2.5 px-3 text-center text-slate-300">-</td>
+                            <td class="py-2.5 px-3 text-slate-300">-</td>
+                            <td class="py-2.5 px-3 text-slate-300">-</td>
+                        </tr>
                     `;
                 }
-
-                // Appending page components to the target page sheet DOM node
-                sheet.innerHTML = headerHtml + tableHtml + footerHtml;
-                previewContainer.appendChild(sheet);
             }
+
+            const tableHtml = `
+                <div class="flex-grow">
+                    <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm bg-white">
+                        <table class="w-full table-fixed border-collapse">
+                            <thead class="${activeTheme.bg} text-white text-[10px] uppercase font-bold tracking-wider">
+                                <tr>
+                                    <th class="w-[8%] py-3 px-3 text-center rounded-tl-xl">ลำดับ</th>
+                                    <th class="w-[52%] py-3 px-2 text-left">รายละเอียดสินค้า / บริการ</th>
+                                    <th class="w-[10%] py-3 px-3 text-center">จำนวน</th>
+                                    <th class="w-[14%] py-3 px-3 text-right">ราคาต่อหน่วย</th>
+                                    <th class="w-[16%] py-3 px-3 text-right rounded-tr-xl">ยอดรวม (บาท)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-[11px] text-slate-600 divide-y divide-slate-100">${tableRowsHtml}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            let footerHtml = '';
+            if (isLastPage) {
+                let paymentPrintDetailsHtml = '';
+                if (state.payment.method === 'cheque') {
+                    paymentPrintDetailsHtml = `
+                        <p class="col-span-2"><span class="font-medium text-slate-400">ชำระด้วย:</span> เช็คธนาคาร</p>
+                        <p class="col-span-2"><span class="font-medium text-slate-400">ธนาคารเจ้าของเช็ค:</span> ${state.payment.chequeBank || '-'}</p>
+                        <p><span class="font-medium text-slate-400">เลขที่เช็ค:</span> <strong class="text-slate-800 font-bold">${state.payment.chequeNo || '-'}</strong></p>
+                        <p><span class="font-medium text-slate-400">ลงวันที่:</span> ${state.payment.chequeDate || '-'}</p>
+                        <p class="col-span-2"><span class="font-medium text-slate-400">สั่งจ่ายในนาม:</span> <strong class="text-slate-800 font-semibold">${state.payment.accountName || '-'}</strong></p>
+                    `;
+                } else if (state.payment.method === 'cash') {
+                    paymentPrintDetailsHtml = `
+                        <p class="col-span-2"><span class="font-medium text-slate-400">วิธีการชำระเงิน:</span> <strong class="text-slate-800 font-bold">เงินสด (Cash)</strong></p>
+                        ${state.payment.cashRef ? `<p class="col-span-2"><span class="font-medium text-slate-400">หมายเลขการชำระ:</span> <strong class="text-slate-800 font-bold">${state.payment.cashRef}</strong></p>` : ''}
+                        <p class="col-span-2 text-slate-500 text-[9px] leading-snug">ชำระด้วยเงินสดเต็มจำนวนเรียบร้อยแล้ว ณ วันที่ส่งมอบสินค้า/บริการ</p>
+                    `;
+                } else {
+                    paymentPrintDetailsHtml = `
+                        <p><span class="font-medium text-slate-400">ธนาคาร:</span> ${state.payment.bankName || '-'}</p>
+                        <p><span class="font-medium text-slate-400">เลขบัญชี:</span> <strong class="text-slate-800 font-bold">${state.payment.accountNo || '-'}</strong></p>
+                        <p class="col-span-2"><span class="font-medium text-slate-400">ชื่อบัญชี:</span> ${state.payment.accountName || '-'}</p>
+                        ${state.payment.promptPay ? `<p class="col-span-2"><span class="font-medium text-slate-400">พร้อมเพย์:</span> ${state.payment.promptPay}</p>` : ''}
+                    `;
+                }
+                footerHtml = `
+                    <div class="mt-4 pt-3 border-t border-slate-100">
+                        <div class="w-full ${activeTheme.lightBg} border-l-4 ${activeTheme.borderL} py-2 px-3 rounded-r-lg mb-3 flex items-center justify-between">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">จำนวนเงินอักษร:</span>
+                            <span class="text-[11px] font-extrabold ${activeTheme.accentText}">${arabToBahtText(netTotal)}</span>
+                        </div>
+                        <div class="grid grid-cols-12 gap-4 text-[10px]">
+                            <div class="col-span-7 bg-slate-50/70 p-3 rounded-xl border border-slate-100/80 flex flex-col justify-between">
+                                <div>
+                                    <h5 class="font-extrabold text-slate-800 text-[11px] mb-1.5 flex items-center gap-1.5">
+                                        <span class="w-1.5 h-3 rounded-sm ${activeTheme.bg}"></span>
+                                        ข้อมูลการรับชำระเงิน (Payment)
+                                    </h5>
+                                    <div class="grid grid-cols-2 gap-y-1 gap-x-2 text-slate-600 text-[10.5px]">${paymentPrintDetailsHtml}</div>
+                                </div>
+                                <div class="mt-2.5 pt-2 border-t border-slate-100 text-[9px] text-slate-400 leading-tight space-y-0.5">
+                                    <p><strong class="font-bold">หมายเหตุ:</strong> ${state.notes[0] || '-'}</p>
+                                    ${state.notes[1] ? `<p>${state.notes[1]}</p>` : ''}
+                                </div>
+                            </div>
+                            <div class="col-span-5 bg-slate-50/70 p-3 rounded-xl border border-slate-100/80 space-y-1.5">
+                                <div class="flex justify-between items-center text-slate-500">
+                                    <span>รวมเป็นเงิน (Subtotal):</span><span class="font-semibold text-slate-800">${formatMoney(subtotal)}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-slate-500">
+                                    <span>ภาษีมูลค่าเพิ่ม VAT (${state.vatRate}%):</span><span class="font-semibold text-slate-800">${formatMoney(vatAmount)}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-slate-500 pb-1.5 border-b border-slate-100">
+                                    <span>หักภาษี ณ ที่จ่าย WHT (${state.whtRate}%):</span><span class="font-semibold text-slate-800">${formatMoney(whtAmount)}</span>
+                                </div>
+                                <div class="flex justify-between items-center pt-1">
+                                    <span class="font-extrabold text-slate-800 text-[11px]">ยอดชำระสุทธิ (Net Total):</span>
+                                    <span class="text-sm font-black ${activeTheme.text}">${formatMoney(netTotal)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 grid grid-cols-2 gap-8 text-[10px] text-center">
+                        <div class="flex flex-col justify-end h-16">
+                            <p class="text-slate-400 mb-5">ลงชื่อผู้เสนอราคา / ผู้รับเงิน</p>
+                            <div class="border-b border-dashed border-slate-300 w-48 mx-auto"></div>
+                            <p class="mt-1.5 font-semibold text-slate-700">( ${state.document.salesPerson || 'ผู้จัดทำ'} )</p>
+                        </div>
+                        <div class="flex flex-col justify-end h-16">
+                            <p class="text-slate-400 mb-5">ลงชื่อผู้อนุมัติ / ผู้ซื้อสินค้า</p>
+                            <div class="border-b border-dashed border-slate-300 w-48 mx-auto"></div>
+                            <p class="mt-1.5 font-semibold text-slate-700">( ...................................................... )</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                footerHtml = `
+                    <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400">
+                        <p>โปรดตรวจสอบรายการชำระเงินและดูรายละเอียดสรุปในหน้าสุดท้าย</p>
+                        <p>ยอดรวมยกยอดไปหน้าถัดไป: <strong class="text-slate-700">${formatMoney(subtotal)} บาท</strong></p>
+                    </div>
+                `;
+            }
+
+            sheet.innerHTML = headerHtml + tableHtml + footerHtml;
+            previewContainer.appendChild(sheet);
         }
-    </script>
+    }
+</script>
 </body>
 </html>
